@@ -1,0 +1,12 @@
+shiz config
+shiz init
+shiz add
+shiz reset
+shiz status
+shiz commit
+shiz set
+shiz replace
+shiz remove
+shiz log
+shiz branch
+shiz checkout

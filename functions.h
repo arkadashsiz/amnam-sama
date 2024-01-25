@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 //compares two chars
 int comp(char big, char small){
     if (big<small)
@@ -246,6 +250,27 @@ int num_words(char* a){
     }
     return temp_val;
     
+}
+
+void copy_textfile(char* name ,FILE* file){
+    char* data=(char*) calloc(10000,1);
+    for (int i = 0; i < 10000; i++)
+    {
+        fscanf(file,"%c",(data+i));
+    }
+    int length = strlen(name);
+    char o[5]=".txt";
+    for (int i = length; i < length+4; i++)
+    {
+        *(name+i)=o[i-length];
+    }
+    *(name+length+4)='\0';
+    FILE* a=fopen(name,"w+");
+    for (int i = 0; i < 10000; i++)
+    {
+        fprintf(a,"%c",*(data+i));
+    }
+    fclose(a);
 }
 
 //above functions are reused from HW's
