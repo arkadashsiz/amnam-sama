@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "functions.h"
 
 //compares two chars
 int comp(char big, char small){
