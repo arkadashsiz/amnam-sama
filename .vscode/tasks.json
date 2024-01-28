@@ -10,7 +10,7 @@
                 "-I",
                 "include\\",
                 "-o",
-                "shiz.exe"
+                "shiz"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

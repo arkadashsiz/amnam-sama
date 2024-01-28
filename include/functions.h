@@ -1,9 +1,13 @@
 
 #ifndef _FUNCTIONS_H
 #define _FUNCTIONS_H
+#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <errno.h>
+#include <unistd.h>
 //compares two chars
 int comp(char big, char small);
 int comp_word(char *A,char *B,int length);
@@ -17,11 +21,18 @@ void empty_str(char* a,int length);
 int num_words(char* a);
 void copy_textfile(char* name ,FILE* file);
 
+unsigned char command_detector(int argc,char *argv[],FILE* command_file,int number_commands);
+int check_shiz_local_dir(char* file_dir);
+int check_shiz_local_dir_rec(char* file_dir);
+int check_global_dir();
+void create_local_shiz_dir(char* e);
+int check_file(char* dir);
+int config_glob_name(int argc,char *argv[]);
+int config_glob_email(int argc,char *argv[]);
+
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 
 
 
