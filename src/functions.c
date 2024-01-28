@@ -366,7 +366,7 @@ int check_shiz_local_dir(char* file_dir){
 
 }
 
-int check_shiz_local_dir_rec(char* file_dir){
+int check_shiz_local_dir_rec(char* file_dir,int reverse_depth){
     char* dir=(char*) calloc(256,1);
     strcpy(dir,file_dir);
     char temp;
@@ -386,20 +386,52 @@ int check_shiz_local_dir_rec(char* file_dir){
     
     if (strcmp(dir,"C:")==0)
     {
-        return 0;
+        return -1;
     }
     
     int ret_val=check_shiz_local_dir(file_dir);
     if (ret_val==1)
     {
-        return 1;
+        return reverse_depth;
     }
     else{
-        return check_shiz_local_dir_rec(dir);
+        return check_shiz_local_dir_rec(dir,reverse_depth+1);
     }
 
 }
 
+int find_shiz_local_dir(char*output,char* file_dir,int depth){
+    strcpy(output,file_dir);
+    int size =strlen(output);
+    if (depth==0)
+    {
+        *(output+size)='\0';
+        return 0;
+    }
+    
+    int counter=1;
+    char temp;
+    
+    for (int i = size-1; i >=0; i--)
+    {
+        if (*(output+i)=='\\'&&counter<depth)
+        {
+            counter++;
+            *(output+i)=' ';
+        }
+        else if (*(output+i)=='\\'&&counter==depth)
+        {
+            *(output+i)='\0';
+            break;
+        }
+        else{
+            *(output+i)=' ';
+        }
+        
+    }
+    return 0;
+
+}
 
 int config_glob_name(int argc,char *argv[]){
     int check =check_file("c:\\shiz\\name.txt");
@@ -431,6 +463,111 @@ int config_glob_email(int argc,char *argv[]){
     fprintf(file,"email: %s \n",argv[4]);
     return 0;
 }
+int config_glob_alias(int argc,char *argv[]){
+    int check =check_file("c:\\shiz\\alias.txt");
+    FILE* file;
+    if (check==0)
+    {
+        file=fopen("c:\\shiz\\alias.txt","r+");
+    }
+    else{
+        file=fopen("c:\\shiz\\alias.txt","w+");
+    }
+    fseek(file,0,0);
+    char* alias=(char*) calloc(256,1);
+    int reached_dot=0;
+    int counter=0;
+    for (int i = 0; i < strlen(argv[3]); i++)
+    {
+        if(*(argv[3]+i)=='.'){
+            reached_dot=1;
+        }
+        else if (reached_dot==1)
+        {
+            *(alias+counter)=*(argv[3]+i);
+            counter++;
+        }
+        
+    }
+    fprintf(file,"%s is: %s \n",alias,argv[4]);
+}
+
+
+int config_email(int argc,char *argv[],char* current_dir){
+    char* shiz_dir=(char*) calloc(256,1);
+    find_shiz_local_dir(shiz_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+    int leng=strlen(shiz_dir);
+    char shiz[7]="\\.shiz";
+    for (int i = 0; i < 7; i++)
+    {
+        *(shiz_dir+leng+i)=shiz[i];
+    }
+    chdir(shiz_dir);
+    //////
+    FILE* file=fopen("email.txt","r+");
+    if (file==NULL)
+    {
+        file=fopen("email.txt","w+");
+    }
+    fseek(file,0,0);
+    fprintf(file,"email: %s \n",argv[argc-1]);
+    return 0;
+}
+int config_name(int argc,char *argv[],char* current_dir){
+    char* shiz_dir=(char*) calloc(256,1);
+    find_shiz_local_dir(shiz_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+    int leng=strlen(shiz_dir);
+    char shiz[7]="\\.shiz";
+    for (int i = 0; i < 7; i++)
+    {
+        *(shiz_dir+leng+i)=shiz[i];
+    }
+    chdir(shiz_dir);
+    /////
+    FILE* file=fopen("name.txt","r+");
+    if (file==NULL)
+    {
+        file=fopen("name.txt","w+");
+    }
+    fseek(file,0,0);
+    fprintf(file,"name: %s \n",argv[argc-1]);
+    return 0;
+}
+int config_alias(int argc,char *argv[],char* current_dir){
+    char* shiz_dir=(char*) calloc(256,1);
+    find_shiz_local_dir(shiz_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+    int leng=strlen(shiz_dir);
+    char shiz[7]="\\.shiz";
+    for (int i = 0; i < 7; i++)
+    {
+        *(shiz_dir+leng+i)=shiz[i];
+    }
+    chdir(shiz_dir);
+    /////
+    FILE* file=fopen("alias.txt","r+");
+    if (file==NULL)
+    {
+        file=fopen("alias.txt","w+");
+    }
+    fseek(file,0,0);
+    char* alias=(char*) calloc(256,1);
+    int reached_dot=0;
+    int counter=0;
+    for (int i = 0; i < strlen(argv[2]); i++)
+    {
+        if(*(argv[2]+i)=='.'){
+            reached_dot=1;
+        }
+        else if (reached_dot==1)
+        {
+            *(alias+counter)=*(argv[2]+i);
+            counter++;
+        }
+        
+    }
+    fprintf(file,"%s is: %s \n",alias,argv[3]);
+}
+
 
 int check_global_dir(){
     DIR* dir=opendir("c:\\shiz");
@@ -440,7 +577,7 @@ int check_global_dir(){
     }
     else if (ENOENT ==errno)
     {
-        DIR* shiz_dir =mkdir("c:\\shiz");
+        int shiz_dir =mkdir("c:\\shiz");
         return 1;
     }
     else{
@@ -463,3 +600,103 @@ void create_local_shiz_dir(char* e){
     }
 }
 
+int comp_file(FILE* file1,FILE* file2){
+    char a;
+    char b;
+    int ret_val=0;
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(file1,i,0);
+        fseek(file2,i,0);
+        fscanf(file1,"%c",&a);
+        fscanf(file2,"%c",&b);
+        if (a!=b)
+        {
+            ret_val=i;
+            break;
+        }
+        
+        
+    }
+    
+    return ret_val;
+
+}
+
+void hash_file(FILE* file,unsigned char *out){
+    unsigned char md5_digest[MD5_DIGEST_LENGTH];
+    unsigned char* data=(unsigned char*) calloc(10000,1);
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(file,i,0);
+        fscanf(file,"%c",data+i);
+    }
+    MD5(data,10000,md5_digest);
+    for (int i = 0; i < 16; i++)
+    {
+        *(out+i)=md5_digest[i];
+    }
+    
+
+}
+
+
+int send_file_to_stage(char* current_dir,char* file_loc){
+    FILE* transfer_file=fopen(file_loc,"r+");
+    char* file_stage_dir=(char*) calloc(256,1);
+    find_shiz_local_dir(file_stage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+    char e[13]="\\.shiz\\stage\\";
+    //adding ((/.shiz/stage)) to end of string
+    int leng=strlen(file_stage_dir);
+    for (int i = 0; i < 13; i++)
+    {
+        *(file_stage_dir+leng+i)=e[i];
+    }
+    *(file_stage_dir+leng+13)='\0';
+    leng+=13;
+    //
+    char* hash_code=(char*) calloc(16,1);
+    hash_file(transfer_file,hash_code);
+    char* just_file_name=(char*) calloc(256,1);
+    int y=0;
+    for (int i = strlen(file_loc); i >=0; i--)
+    {
+        if (*(file_loc)=='\\')
+        {
+            y=i;
+            break;
+        }
+        
+    }
+    int counter=0;
+    for (int i = y; i < strlen(file_loc); i++)
+    {
+        *(just_file_name+counter)=*(file_loc+i);
+        counter++;
+    }
+    
+
+    strcat(file_stage_dir,just_file_name);
+    FILE* hash_file_stage=fopen(file_stage_dir,"w+");
+    fprintf(hash_file_stage,"%s",hash_code);
+    if (hash_file_stage==NULL)
+    {
+        return 1;
+    }
+    else{
+        return 0;
+    }
+    
+    
+    
+
+}
+
+
+
+
+int send_dir_to_stage(char* current_dir,char* dir_loc){
+
+
+    
+}

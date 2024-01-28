@@ -5,10 +5,12 @@
             "label": "C/C++: gcc.exe build active file",
             "command": "C:\\Strawberry\\c\\bin\\gcc.exe",
             "args": [
+                
                 "-fdiagnostics-color=always",
                 "src\\*.c",
                 "-I",
                 "include\\",
+                "-lcrypto",
                 "-o",
                 "shiz"
             ],
