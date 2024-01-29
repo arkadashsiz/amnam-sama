@@ -9,7 +9,9 @@
 #include <errno.h>
 #include <unistd.h>
 #include <openssl/md5.h>
-
+#include <windowsx.h>
+#include <MMsystem.h>
+#include <conio.h>
 //compares two chars
 int comp(char big, char small);
 int comp_word(char *A,char *B,int length);
@@ -22,7 +24,7 @@ void copy(char* copy_to,char* copy_from,int length);
 void empty_str(char* a,int length);
 int num_words(char* a);
 void copy_textfile(char* name ,FILE* file);
-
+void copy_textfile_withouttxt(char* name ,FILE* file);
 unsigned char command_detector(int argc,char *argv[],FILE* command_file,int number_commands);
 int check_shiz_local_dir(char* file_dir);
 int check_shiz_local_dir_rec(char* file_dir,int reverse_depth);
@@ -42,8 +44,18 @@ int comp_file(FILE* file1,FILE* file2);
 
 void hash_file(FILE* file,unsigned char *out);
 int send_file_to_stage(char* current_dir,char* file_loc);
+int all_file_dirs(char* current_loc,char* file_dir_list[]);
+int send_rec_to_stage(int size_of_cuurent_dir_string,char* current_dir,char* stage_dir);
 
-int send_dir_to_stage(char* current_dir,char* dir_loc);
+
+void turn_str_to_list(char* string,char* list[]);
+
+void append_str_to_str(char* str3,char* str1,char str2[]);
+
+void listFilesRecursively(char *basePath,char* out_list);
+
+int copy_file(char* copy_to_dir,char* file_dir);
+
 #endif
 
 

@@ -20,6 +20,12 @@ int main(int argc,char *argv[]){
     
     int is_there_a_shiz_dir=check_shiz_local_dir_rec(current_dir,0);
     //
+    char* stage_dir=(char*) calloc(256,1);
+    char* storage_dir=(char*) calloc(256,1);
+    find_shiz_local_dir(stage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+    find_shiz_local_dir(storage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+    strcat(stage_dir,"\\.shiz\\stage");
+    strcat(storage_dir,"\\.shiz\\storage");
     if (argc==1)
     {
         printf("you stupid little shit\n");
@@ -41,7 +47,40 @@ int main(int argc,char *argv[]){
             }
             
         }
-        
+        else if (strcmp(argv[1],"show-content")==0)
+        {
+            char* names[100];
+            for (int i = 0; i < 100; i++)
+            {
+                names[i]=(char*) calloc(256,1);
+            }
+            all_file_dirs(current_dir,names);
+            for (int i = 0; i < 100; i++)
+            {
+                if (strcmp(names[i],"")!=0)
+                {
+                    printf("%s\n",names[i]);
+                }
+                
+                
+            }
+            
+
+            
+            
+        }
+        else if (strcmp(argv[1],"show-rec-content")==0)
+        {
+            char* list=(char*) calloc(10000,1);
+            
+            
+            listFilesRecursively(current_dir,list);
+            printf("%s\n",list);
+                
+
+            
+            
+        }
     }
     else if (argc==3)
     {
@@ -62,6 +101,15 @@ int main(int argc,char *argv[]){
                 printf("\n");
                 
             }
+        }
+        else if (strcmp(argv[1],"turkiye")==0&&strcmp(argv[2],"forever")==0)
+        {
+            printf("join the turkish legion against the tyrany of greeke menace\n");
+            printf("https://t.me/turkiye_forever\n");
+        }
+        else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"all")==0)
+        {
+            send_rec_to_stage(strlen(current_dir),current_dir,stage_dir);
         }
         
     }
@@ -90,6 +138,17 @@ int main(int argc,char *argv[]){
             }
         }
         else if (strcmp("config",argv[1])==0&&comp_word(argv[2],"alias.",6)==0)
+        {
+            if (is_there_a_shiz_dir==-1)
+            {
+                printf(".shiz file does not exist\n");
+            }
+            else{
+                config_alias(argc,argv,current_dir);
+                //currently it does not return an error for non functioning commands
+            }
+        }
+        else if (strcmp("add",argv[1])==0&&strcmp("-f",argv[2])==0&&strcmp("<depth>",argv[3])==0)
         {
             if (is_there_a_shiz_dir==-1)
             {
@@ -152,6 +211,9 @@ int main(int argc,char *argv[]){
     
     
     
+
+    printf("storage dir:%s\n\n",storage_dir);
+    printf("stage dir:%s\n\n",stage_dir);
     printf("number of args:\n%d\n\n",argc);
     printf("current dir:\n%s\n\n",current_dir);
     printf("args:\n");
@@ -159,7 +221,7 @@ int main(int argc,char *argv[]){
     {
         printf("%s\n",argv[i]);
     }
-    
+    printf("\n\n\n");
     
     
     return 0;

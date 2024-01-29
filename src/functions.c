@@ -250,6 +250,21 @@ int num_words(char* a){
     
 }
 
+void copy_textfile_withouttxt(char* name ,FILE* file){
+    char* data=(char*) calloc(10000,1);
+    for (int i = 0; i < 10000; i++)
+    {
+        fscanf(file,"%c",(data+i));
+    }
+    
+    FILE* a=fopen(name,"w+");
+    for (int i = 0; i < 10000; i++)
+    {
+        fprintf(a,"%c",*(data+i));
+    }
+    fclose(a);
+}
+
 void copy_textfile(char* name ,FILE* file){
     char* data=(char*) calloc(10000,1);
     for (int i = 0; i < 10000; i++)
@@ -645,15 +660,9 @@ int send_file_to_stage(char* current_dir,char* file_loc){
     FILE* transfer_file=fopen(file_loc,"r+");
     char* file_stage_dir=(char*) calloc(256,1);
     find_shiz_local_dir(file_stage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
-    char e[13]="\\.shiz\\stage\\";
     //adding ((/.shiz/stage)) to end of string
-    int leng=strlen(file_stage_dir);
-    for (int i = 0; i < 13; i++)
-    {
-        *(file_stage_dir+leng+i)=e[i];
-    }
-    *(file_stage_dir+leng+13)='\0';
-    leng+=13;
+
+    append_str_to_str(file_stage_dir,file_stage_dir,"\\.shiz\\stage\\");
     //
     char* hash_code=(char*) calloc(16,1);
     hash_file(transfer_file,hash_code);
@@ -692,11 +701,198 @@ int send_file_to_stage(char* current_dir,char* file_loc){
 
 }
 
-
-
-
-int send_dir_to_stage(char* current_dir,char* dir_loc){
-
-
+void append_str_to_str(char* str3,char*str1,char str2[]){
     
+    
+    //adding ((/.shiz/stage)) to end of string
+    strcpy(str3,str1);
+    int leng=strlen(str3);
+    int leng2=strlen(str2);
+    for (int i = 0; i < leng2; i++)
+    {
+        *(str3+leng+i)=str2[i];
+    }
+    *(str3+leng+leng2)='\0';
+    //
+
+}
+
+int all_file_dirs(char* current_loc,char* file_dir_list[]){
+    struct dirent *files;
+
+    DIR *dir = opendir(current_loc);
+    if (dir == NULL){
+       printf("Directory cannot be opened!" );
+    }
+    int counter=-2;
+    while ((files = readdir(dir)) != NULL){
+        if (counter>=0)
+        {
+            strcpy(file_dir_list[counter],files->d_name);
+        }
+        
+        
+        counter++;
+    }
+        
+    closedir(dir);
+    return counter;
+}
+
+
+void listFilesRecursively(char *current_dir,char* out_list)
+{
+    char path[1000];
+    struct dirent *dp;
+    DIR *dir = opendir(current_dir);
+
+    // Unable to open directory stream
+    if (!dir)
+    {
+        return;
+    }
+        
+    while ((dp = readdir(dir)) != NULL)
+    {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
+        {
+            strcat(out_list,current_dir);
+            strcat(out_list,"\\");
+            strcat(out_list,dp->d_name);
+            strcat(out_list,"\n");
+            
+            // Construct new path from our base path
+            strcpy(path, current_dir);
+            strcat(path, "\\");
+            strcat(path, dp->d_name);
+
+            listFilesRecursively(path,out_list);
+        }
+    }
+
+    closedir(dir);
+}
+
+int copy_file(char* copy_to_dir,char* file_dir){
+    FILE* file=fopen(file_dir,"r+");
+    char* copy_to_file=(char*) calloc(256,1);
+    strcpy(copy_to_file,copy_to_dir);
+    strcat(copy_to_file,"\\");
+    char* file_name=(char*) calloc(256,1);
+    int e;
+    for (int i = 0; i < 35; i++)
+    {
+        if (*(file_dir+i)=='\\')
+        {
+            e=i;
+        }
+    }
+    e++;
+    strcpy(file_name,file_dir+e);
+    printf("%s\n",file_name);
+    strcat(copy_to_file,file_name);
+    printf("%s\n",copy_to_file);
+    copy_textfile(copy_to_file,file);
+
+
+
+
+    return 0;
+}
+
+
+void turn_str_to_list(char* string,char* list[]){
+    int pos=0;
+    int leng;
+    int i=0;
+    do
+    {
+        leng=word_size(string,pos);
+        copy(list[i],string+pos,leng);
+        i++;
+        pos=word_pos(string,pos,1);
+    } while (leng>0);
+}
+int send_rec_to_stage(int size_of_cuurent_dir_string,char* current_dir,char* stage_dir){
+    char* y=(char*) calloc(10000,1);
+    listFilesRecursively(current_dir,y);
+    char* list[100];
+    for (int i = 0; i < 100; i++)
+    {
+        list[i]=(char*) calloc(256,1);
+    }
+    turn_str_to_list(y,list);
+
+    ///////////////////////////////////////
+    int count=0;
+    while (strcmp(list[count],"")!=0)
+    {
+        count++;
+    }
+    
+    for (int i = 0; i < count; i++)
+    {
+        char* temp=(char*) calloc(256,1);
+        strcpy(temp,list[i]+size_of_cuurent_dir_string);
+        char* new_loc=(char*) calloc(256,1);
+        strcpy(new_loc,stage_dir);
+        strcat(new_loc,temp);
+
+        int leng =strlen(new_loc);
+        int is_file=0;
+        for (int j = leng-1; j  >=0; j--)
+        {
+            if (*(new_loc+j)=='\\')
+            {
+                break;
+            }
+            
+            else if (*(new_loc+j)=='.')
+            {
+                is_file=1;
+                break;
+            }
+            
+        }
+        
+        if (is_file)
+        {
+
+            FILE* file=fopen(list[i],"r+");
+            FILE* does_exist=fopen(new_loc,"r");
+            printf("%s\n",new_loc);
+            if (does_exist==NULL)
+            {
+                printf("didnt exist made it\n\n");
+                copy_textfile_withouttxt(new_loc,file);
+            }
+            else{
+                
+                unsigned char* hash1=(unsigned char*) calloc(16,1);
+                unsigned char* hash2=(unsigned char*) calloc(16,1);
+                hash_file(file,hash1);
+                hash_file(does_exist,hash2);
+                if (comp_word(hash1,hash2,16)==0)
+                {
+                    printf("the file .%s is alredy in stage\n",temp);
+                }
+                else{
+                    printf("changes_comited\n\n");
+                    copy_textfile_withouttxt(new_loc,file);
+                }
+                
+            }
+            
+        }
+        else{
+            DIR* flag=opendir(new_loc);
+            if (flag==NULL)
+            {
+                mkdir(new_loc);
+            }
+        }
+        
+        
+    }
+    return 0;
 }
