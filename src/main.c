@@ -13,19 +13,42 @@ int main(int argc,char *argv[]){
 
 
 #endif
+
     check_global_dir();
     //current working diractory
     char* current_dir=(char*)calloc(256,1);
     GetCurrentDirectory(256,current_dir);
-    
     int is_there_a_shiz_dir=check_shiz_local_dir_rec(current_dir,0);
     //
     char* stage_dir=(char*) calloc(256,1);
     char* storage_dir=(char*) calloc(256,1);
-    find_shiz_local_dir(stage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
-    find_shiz_local_dir(storage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
-    strcat(stage_dir,"\\.shiz\\stage");
-    strcat(storage_dir,"\\.shiz\\storage");
+    char* shiz_dir=(char*) calloc(256,1);
+    char* current_branch_dir=(char*) calloc(256,1);
+    char* user_name_file_loc=(char*) calloc(256,1);
+    char* user_name=(char*) calloc(256,1);
+    FILE* current_branch_file;
+    FILE* user_name_file;
+    char* current_branch=(char*) calloc(256,1);
+    if (is_there_a_shiz_dir!=-1)
+    {
+        
+        find_shiz_local_dir(shiz_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+        find_shiz_local_dir(stage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+        find_shiz_local_dir(storage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+        find_shiz_local_dir(current_branch_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
+        find_shiz_local_dir(user_name_file_loc,current_dir,check_shiz_local_dir_rec(current_dir,0));
+        strcat(user_name_file_loc,"\\.shiz\\name.txt");
+        strcat(stage_dir,"\\.shiz\\stage");
+        strcat(storage_dir,"\\.shiz\\storage");
+        strcat(current_branch_dir,".\\.shiz\\storage\\current_branch.txt");
+        user_name_file=fopen(user_name_file_loc,"r");
+        current_branch_file=fopen(current_branch_dir,"r");
+        fscanf(user_name_file,"name: %s\n",user_name);
+        fscanf(current_branch_file,"%s",current_branch);
+        fclose(current_branch_file);
+    }
+    
+    
     if (argc==1)
     {
         printf("you stupid little shit\n");
@@ -39,7 +62,10 @@ int main(int argc,char *argv[]){
             {
                 create_local_shiz_dir(".\\.shiz");
                 create_local_shiz_dir(".\\.shiz\\stage");
-                create_local_shiz_dir(".\\.shiz\\depository");
+                create_local_shiz_dir(".\\.shiz\\storage");
+                FILE* file22=fopen(".\\.shiz\\storage\\current_branch.txt","w+");
+                fprintf(file22,"main_0");
+                fclose(file22);
             }
             else
             {
@@ -81,6 +107,23 @@ int main(int argc,char *argv[]){
             
             
         }
+        else if (strcmp(argv[1],"show-stage-content")==0)
+        {
+            char* list=(char*) calloc(10000,1);
+            
+            
+            listFilesRecursively_stage(stage_dir,list);
+            printf("%s\n",list);
+                
+
+            
+            
+        }
+        else if (strcmp(argv[1],"status")==0)
+        {
+           status(current_dir,stage_dir,shiz_dir);
+        }
+    
     }
     else if (argc==3)
     {
@@ -107,11 +150,29 @@ int main(int argc,char *argv[]){
             printf("join the turkish legion against the tyrany of greeke menace\n");
             printf("https://t.me/turkiye_forever\n");
         }
+        else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"all")!=0)
+        {
+            send_to_storage(strlen(shiz_dir),strlen(current_dir),argv[2],stage_dir,current_dir);
+        }
         else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"all")==0)
         {
-            send_rec_to_stage(strlen(current_dir),current_dir,stage_dir);
+            send_to_storage(strlen(shiz_dir),strlen(current_dir),current_dir,stage_dir,current_dir);
+            
         }
-        
+        else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"-redo")==0)
+        {
+            //to be imlemented
+            redo_stage(stage_dir,shiz_dir);
+        }
+        else if (strcmp(argv[1],"rest")==0)
+        {
+            unstage(stage_dir,shiz_dir,argv[2],current_dir);
+        }
+        else if (strcmp(argv[1],"check-stage")==0)
+        {
+            printf("out code is:%d\n",check_if_staged_reverse(argv[2],stage_dir,shiz_dir));
+        }
+
     }
     
     else if (argc==4)
@@ -148,17 +209,17 @@ int main(int argc,char *argv[]){
                 //currently it does not return an error for non functioning commands
             }
         }
-        else if (strcmp("add",argv[1])==0&&strcmp("-f",argv[2])==0&&strcmp("<depth>",argv[3])==0)
+        else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"-f")==0)
         {
-            if (is_there_a_shiz_dir==-1)
-            {
-                printf(".shiz file does not exist\n");
-            }
-            else{
-                config_alias(argc,argv,current_dir);
-                //currently it does not return an error for non functioning commands
-            }
+            int num=decipher(strlen(argv[3])+1,argv[3]);
+            check_staged_rec(current_dir,stage_dir,shiz_dir,num);
         }
+        else if (strcmp(argv[1],"commit")==0&&strcmp(argv[2],"-m")==0)
+        {
+            
+            commit(number_files(stage_dir),user_name,current_branch,argv[3],stage_dir,storage_dir,shiz_dir);
+        }
+        
     }
     
     else if (argc==5)
@@ -189,31 +250,31 @@ int main(int argc,char *argv[]){
             else{
                 for (int i = 3; i < argc; i++)
                 {
-                    printf("your out put is %d\n", send_file_to_stage(current_dir,argv[i]));
+                    send_to_storage(strlen(shiz_dir),strlen(current_dir),argv[i],stage_dir,current_dir);
                 }
                 
                 
             }
             
         }
-        else if (strcmp(argv[1],"add")==0)
-        {
-            if (is_there_a_shiz_dir==-1)
+        else if (strcmp(argv[1],"rest")==0&&strcmp(argv[2],"-f")==0){
+            for (int i = 3; i < argc; i++)
             {
-                printf(".shiz file does not exist\n");
-            }
-            else{
-                printf("your out put is %d\n", send_file_to_stage(current_dir,argv[2]));
+                unstage(stage_dir,shiz_dir,argv[i],current_dir);
             }
             
+
         }
+
     }
     
     
     
 
+    printf("\n\n\n\n\n\n\n");
     printf("storage dir:%s\n\n",storage_dir);
     printf("stage dir:%s\n\n",stage_dir);
+    printf("current branch:%s\n",current_branch);
     printf("number of args:\n%d\n\n",argc);
     printf("current dir:\n%s\n\n",current_dir);
     printf("args:\n");

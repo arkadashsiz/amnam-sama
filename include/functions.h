@@ -12,6 +12,7 @@
 #include <windowsx.h>
 #include <MMsystem.h>
 #include <conio.h>
+#include <time.h>
 //compares two chars
 int comp(char big, char small);
 int comp_word(char *A,char *B,int length);
@@ -45,7 +46,7 @@ int comp_file(FILE* file1,FILE* file2);
 void hash_file(FILE* file,unsigned char *out);
 int send_file_to_stage(char* current_dir,char* file_loc);
 int all_file_dirs(char* current_loc,char* file_dir_list[]);
-int send_rec_to_stage(int size_of_cuurent_dir_string,char* current_dir,char* stage_dir);
+int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* current_dir,char* stage_dir);
 
 
 void turn_str_to_list(char* string,char* list[]);
@@ -53,9 +54,20 @@ void turn_str_to_list(char* string,char* list[]);
 void append_str_to_str(char* str3,char* str1,char str2[]);
 
 void listFilesRecursively(char *basePath,char* out_list);
-
+void listFilesRecursively_with_depth(char *current_dir,char* out_list,int depth);
 int copy_file(char* copy_to_dir,char* file_dir);
+int send_to_storage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* file_or_dir,char* stage_dir,char* current_dir);
 
+int check_if_staged(char* current_dir,char* stage_dir,char* shiz_dir);
+void check_staged_rec(char* current_dir,char* stage_dir,char* shiz_dir,int depth);
+void redo_stage(char* stage_dir,char* shiz_dir);
+void unstage(char* stage_dir,char* shiz_dir,char* file_or_dir,char* current_dir);
+void listFilesRecursively_stage(char *stage_dir,char* out_list);
+void status(char* current_dir,char* stage_dir,char* shiz_dir);
+void undo(char* stage_dir,char* shiz_dir);
+int number_files(char* stage_dir);
+int check_if_staged_reverse(char* file_or_dir,char* stage_dir,char* shiz_dir);
+void commit(int number_files,char* user_name,char* current_branch,char* commit_message,char* stage_dir,char* storage_dir,char* shiz_dir);
 #endif
 
 
