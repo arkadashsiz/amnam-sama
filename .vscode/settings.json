@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "windows.h": "c",
-        "windowsx.h": "c"
+        "windowsx.h": "c",
+        "type_traits": "c",
+        "stdlib.h": "c"
     }
 }

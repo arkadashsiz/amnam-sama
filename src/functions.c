@@ -751,7 +751,6 @@ void listFilesRecursively(char *current_dir,char* out_list)
     {
         return;
     }
-        
     while ((dp = readdir(dir)) != NULL)
     {
         if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
@@ -817,10 +816,10 @@ int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* 
     DIR* test =opendir(current_dir);
     if (test==NULL)
     {
-         printf("the folder named: %s does not exist\n",current_dir);
-         return 0;
+        printf("the folder named: %s does not exist\n",current_dir);
+        return 0;
     }
-    
+    closedir(test);
     
     char* y=(char*) calloc(10000,1);
     listFilesRecursively(current_dir,y);
@@ -922,7 +921,8 @@ int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* 
                 }
                 
             }
-            
+            fclose(file);
+            fclose(does_exist);
         }
         else{
             DIR* flag=opendir(new_loc);
@@ -930,6 +930,7 @@ int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* 
             {
                 mkdir(new_loc);
             }
+            closedir(flag);
         }
         
         
@@ -1416,7 +1417,95 @@ int number_files(char* stage_dir){
     return count;
 }
 
-void commit(int number_files,char* user_name,char* current_branch,char* commit_message,char* stage_dir,char* storage_dir,char* shiz_dir){
+void empty_dir(char* dir){
+    char* temp=(char*) calloc(10000,1);
+    char* files[100];
+    for (int i = 0; i < 100; i++)
+    {
+        files[i]=(char*) calloc(256,1);
+    }
+    listFilesRecursively(dir,temp);
+    turn_str_to_list(temp,files);
+    int count=0;
+    while (strcmp(files[count],"")!=0)
+    {
+        count++;
+    }
+    for (int i = 0; i < count; i++)
+    {
+        int siz=strlen(files[i]);
+        int qqqqq=0;
+        int is_file=0;
+        for (int j = siz-1; j >=0; j--)
+        {
+            if (qqqqq==1&&*(files[i]+j)=='\\')
+            {
+                is_file=0;
+                break;
+            }
+            else if (qqqqq==1&&*(files[i]+j)!='\\')
+            {
+                is_file=1;
+                break;
+            }
+
+
+            if (*(files[i]+j)=='.')
+            {
+                qqqqq=1;
+
+            }
+
+        }
+        if (is_file==1)
+        {
+            
+            remove(files[i]);
+        }
+        
+    
+    }
+    for (int i = 0; i < count; i++)
+    {
+        int siz=strlen(files[i]);
+        int qqqqq=0;
+        int is_file=0;
+        for (int j = siz-1; j >=0; j--)
+        {
+            if (qqqqq==1&&*(files[i]+j)=='\\')
+            {
+                is_file=0;
+                break;
+            }
+            else if (qqqqq==1&&*(files[i]+j)!='\\')
+            {
+                is_file=1;
+                break;
+            }
+
+
+            if (*(files[i]+j)=='.')
+            {
+                qqqqq=1;
+
+            }
+
+        }
+        if (is_file==0)
+        {
+            
+            _rmdir(files[i]);
+        }
+        
+    
+    }
+
+    
+}
+
+
+void commit(char* previous_branch,int number_files,char* user_name,char* current_branch,char* commit_message,char* stage_dir,char* storage_dir,char* shiz_dir){
+    
     if (strlen(commit_message)>72)
     {
         printf("coomit message should be smaller than 72 charecters\n");
@@ -1427,6 +1516,12 @@ void commit(int number_files,char* user_name,char* current_branch,char* commit_m
         printf("no commit message\n");
         return;
     }
+    else if (number_files==0)
+    {
+        printf("there is no files in stage\n");
+        return;
+    }
+    
     ///////////////////////
     time_t t = time(NULL);
     struct tm time = *localtime(&t);
@@ -1437,10 +1532,6 @@ void commit(int number_files,char* user_name,char* current_branch,char* commit_m
     strcat(commit_dir,current_branch);
     mkdir(commit_dir);
     send_rec_to_stage(strlen(stage_dir),strlen(stage_dir),stage_dir,commit_dir);
-
-    
-
-
 
 
     strcat(commit_dir,".txt");
@@ -1455,7 +1546,9 @@ void commit(int number_files,char* user_name,char* current_branch,char* commit_m
     fprintf(data_file,"%s\n",hash_id);
     fseek(data_file,0,2);
     fprintf(data_file,"%d\n",number_files);
-
+    fseek(data_file,0,2);
+    fprintf(data_file,"%s\n",previous_branch);
+    fclose(data_file);
     //changing current branch
     int x= strlen(current_branch);
     int y;
@@ -1469,8 +1562,9 @@ void commit(int number_files,char* user_name,char* current_branch,char* commit_m
         
     }
     int next_num=decipher(x-y,current_branch+y+1);
-
-
+    next_num++;
+    sprintf(current_branch+y+1,"%d",next_num);
+    
 
 
 
@@ -1478,4 +1572,12 @@ void commit(int number_files,char* user_name,char* current_branch,char* commit_m
 
     
     
+}
+
+
+void show_commit_id(char* commit_id){
+
+
+
+
 }

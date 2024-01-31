@@ -13,6 +13,7 @@
 #include <MMsystem.h>
 #include <conio.h>
 #include <time.h>
+#include <direct.h>
 //compares two chars
 int comp(char big, char small);
 int comp_word(char *A,char *B,int length);
@@ -67,7 +68,9 @@ void status(char* current_dir,char* stage_dir,char* shiz_dir);
 void undo(char* stage_dir,char* shiz_dir);
 int number_files(char* stage_dir);
 int check_if_staged_reverse(char* file_or_dir,char* stage_dir,char* shiz_dir);
-void commit(int number_files,char* user_name,char* current_branch,char* commit_message,char* stage_dir,char* storage_dir,char* shiz_dir);
+void commit(char* previous_branch,int number_files,char* user_name,char* current_branch,char* commit_message,char* stage_dir,char* storage_dir,char* shiz_dir);
+void empty_dir(char* dir);
+void show_commit_id(char* commit_id);
 #endif
 
 

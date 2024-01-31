@@ -25,6 +25,7 @@ int main(int argc,char *argv[]){
     char* shiz_dir=(char*) calloc(256,1);
     char* current_branch_dir=(char*) calloc(256,1);
     char* user_name_file_loc=(char*) calloc(256,1);
+    char* previous_branch=(char*) calloc(256,1);
     char* user_name=(char*) calloc(256,1);
     FILE* current_branch_file;
     FILE* user_name_file;
@@ -64,6 +65,7 @@ int main(int argc,char *argv[]){
                 create_local_shiz_dir(".\\.shiz\\stage");
                 create_local_shiz_dir(".\\.shiz\\storage");
                 FILE* file22=fopen(".\\.shiz\\storage\\current_branch.txt","w+");
+                strcpy(previous_branch,"NULL");
                 fprintf(file22,"main_0");
                 fclose(file22);
             }
@@ -123,7 +125,11 @@ int main(int argc,char *argv[]){
         {
            status(current_dir,stage_dir,shiz_dir);
         }
-    
+        else if (strcmp(argv[1],"empty")==0)
+        {
+            empty_dir(current_dir);
+            
+        }
     }
     else if (argc==3)
     {
@@ -172,7 +178,7 @@ int main(int argc,char *argv[]){
         {
             printf("out code is:%d\n",check_if_staged_reverse(argv[2],stage_dir,shiz_dir));
         }
-
+        
     }
     
     else if (argc==4)
@@ -216,8 +222,15 @@ int main(int argc,char *argv[]){
         }
         else if (strcmp(argv[1],"commit")==0&&strcmp(argv[2],"-m")==0)
         {
-            
-            commit(number_files(stage_dir),user_name,current_branch,argv[3],stage_dir,storage_dir,shiz_dir);
+            strcpy(previous_branch,current_branch);
+            commit(previous_branch,number_files(stage_dir),user_name,current_branch,argv[3],stage_dir,storage_dir,shiz_dir);
+            FILE* temp33=fopen(current_branch_dir,"r+");
+            fprintf(temp33,"%s",current_branch);
+            fclose(temp33);
+            empty_dir(stage_dir);
+            empty_dir(stage_dir);
+            empty_dir(stage_dir);
+            empty_dir(stage_dir);
         }
         
     }
