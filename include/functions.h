@@ -71,6 +71,18 @@ int check_if_staged_reverse(char* file_or_dir,char* stage_dir,char* shiz_dir);
 void commit(char* previous_branch,int number_files,char* user_name,char* current_branch,char* commit_message,char* stage_dir,char* storage_dir,char* shiz_dir);
 void empty_dir(char* dir);
 void show_commit_id(char* commit_id);
+void logs(int how_many_you_want_you_cute_little_shit_i_hate_you,char* storage_dir);
+
+void branch(char* branch_name,char* current_branch,char* previous_branch,char* storage_dir);
+void show_all_branches(char* storage_dir);
+int compare_two_dates(int* a,int* b);
+void sort_file_by_date(char* files[],int* nums[6],int length_arrays);
+void check_out();
+void logs_branch(char* branch_name,char* storage_dir);
+void logs_author(char* author_name,char* storage_dir);
+void logs_time(int mode,char* time,char* storage_dir);
+void logs_word(char* word,char* storage_dir);
+
 #endif
 
 

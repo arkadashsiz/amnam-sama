@@ -27,8 +27,10 @@ int main(int argc,char *argv[]){
     char* user_name_file_loc=(char*) calloc(256,1);
     char* previous_branch=(char*) calloc(256,1);
     char* user_name=(char*) calloc(256,1);
+    char* previous_file_location=(char*) calloc(256,1);
     FILE* current_branch_file;
     FILE* user_name_file;
+    FILE* previous_branch_file;
     char* current_branch=(char*) calloc(256,1);
     if (is_there_a_shiz_dir!=-1)
     {
@@ -38,15 +40,21 @@ int main(int argc,char *argv[]){
         find_shiz_local_dir(storage_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
         find_shiz_local_dir(current_branch_dir,current_dir,check_shiz_local_dir_rec(current_dir,0));
         find_shiz_local_dir(user_name_file_loc,current_dir,check_shiz_local_dir_rec(current_dir,0));
+        find_shiz_local_dir(previous_file_location,current_dir,check_shiz_local_dir_rec(current_dir,0));
+        strcat(previous_file_location,".\\.shiz\\storage\\previous_branch.txt");
         strcat(user_name_file_loc,"\\.shiz\\name.txt");
         strcat(stage_dir,"\\.shiz\\stage");
         strcat(storage_dir,"\\.shiz\\storage");
         strcat(current_branch_dir,".\\.shiz\\storage\\current_branch.txt");
+        previous_branch_file=fopen(previous_file_location,"r");
         user_name_file=fopen(user_name_file_loc,"r");
         current_branch_file=fopen(current_branch_dir,"r");
+        fscanf(previous_branch_file,"%s",previous_branch);
         fscanf(user_name_file,"name: %s\n",user_name);
         fscanf(current_branch_file,"%s",current_branch);
         fclose(current_branch_file);
+        fclose(previous_branch_file);
+        fclose(user_name_file);
     }
     
     
@@ -64,10 +72,18 @@ int main(int argc,char *argv[]){
                 create_local_shiz_dir(".\\.shiz");
                 create_local_shiz_dir(".\\.shiz\\stage");
                 create_local_shiz_dir(".\\.shiz\\storage");
+                FILE* file123=fopen(".\\.shiz\\storage\\all_branch.txt","w+");
                 FILE* file22=fopen(".\\.shiz\\storage\\current_branch.txt","w+");
-                strcpy(previous_branch,"NULL");
+                FILE* init_loove=fopen(".\\.shiz\\storage\\head_branch.txt","w+");
+                FILE* prev_br=fopen(".\\.shiz\\storage\\previous_branch.txt","w+");
+                fprintf(init_loove,"main_0");
+                fprintf(prev_br,"%s","NULL");
+                fprintf(file123,"main\n");
                 fprintf(file22,"main_0");
+                fclose(prev_br);
+                fclose(init_loove);
                 fclose(file22);
+                fclose(file123);
             }
             else
             {
@@ -130,6 +146,17 @@ int main(int argc,char *argv[]){
             empty_dir(current_dir);
             
         }
+        else if (strcmp(argv[1],"branch")==0)
+        {
+
+            show_all_branches(storage_dir);
+        }
+        else if (strcmp(argv[1],"log")==0)
+        {
+
+            logs(0,storage_dir);
+        }
+    
     }
     else if (argc==3)
     {
@@ -178,7 +205,14 @@ int main(int argc,char *argv[]){
         {
             printf("out code is:%d\n",check_if_staged_reverse(argv[2],stage_dir,shiz_dir));
         }
+        else if (strcmp(argv[1],"branch")==0)
+        {
+            branch(argv[2],current_branch,previous_branch,storage_dir);
+        }
         
+    
+
+
     }
     
     else if (argc==4)
@@ -222,17 +256,48 @@ int main(int argc,char *argv[]){
         }
         else if (strcmp(argv[1],"commit")==0&&strcmp(argv[2],"-m")==0)
         {
-            strcpy(previous_branch,current_branch);
+            
             commit(previous_branch,number_files(stage_dir),user_name,current_branch,argv[3],stage_dir,storage_dir,shiz_dir);
+            FILE* egg=fopen(previous_file_location,"r+");
+            fprintf(egg,"%s",previous_branch);
             FILE* temp33=fopen(current_branch_dir,"r+");
             fprintf(temp33,"%s",current_branch);
             fclose(temp33);
+            fclose(egg);
             empty_dir(stage_dir);
             empty_dir(stage_dir);
             empty_dir(stage_dir);
             empty_dir(stage_dir);
         }
-        
+        else if (strcmp("remove",argv[1])==0&&strcmp("-s",argv[2])==0){
+            //to be imlemented
+        }
+        else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-n")==0)
+        {
+
+            logs(decipher(strlen(argv[3]),argv[3]),storage_dir);
+        }
+        else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-branch")==0)
+        {
+            logs_branch(argv[3],storage_dir);
+        }
+        else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-author")==0)
+        {
+            logs_author(argv[3],storage_dir);
+        }
+        else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-before")==0)
+        {
+            logs_time(1,argv[3],storage_dir);
+        }
+        else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-since")==0)
+        {
+            logs_time(0,argv[3],storage_dir);
+        }
+        else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-search")==0)
+        {
+            logs_word(argv[3],storage_dir);
+        }
+
     }
     
     else if (argc==5)
@@ -250,6 +315,18 @@ int main(int argc,char *argv[]){
             config_glob_alias(argc,argv);
             //currently it does not return an error for non functioning commands
         }
+    }
+    else if (argc==6)
+    {
+        if (strcmp("set",argv[1])==0&&strcmp("-m",argv[2])==0&&strcmp("-s",argv[4])==0){
+
+            //to be imlemented
+        }
+        else if (strcmp("replace",argv[1])==0&&strcmp("-m",argv[2])==0&&strcmp("-s",argv[4])==0){
+            //to be imlemented
+
+        }
+
     }
     
     if (argc>1)
@@ -278,7 +355,15 @@ int main(int argc,char *argv[]){
             
 
         }
-
+        else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-search")==0)
+        {
+            for (int i = 3; i < argc; i++)
+            {
+                logs_word(argv[i],storage_dir);
+            }
+            
+            
+        }
     }
     
     
