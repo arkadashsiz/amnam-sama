@@ -2407,3 +2407,366 @@ void logs_word(char* word,char* storage_dir){
 
 
 }
+
+int send_rec_to_shiz(int size_of_to_dir,char* to_dir,char* from_dir){
+    ////////////////////////////////
+    DIR* test =opendir(to_dir);
+    if (test==NULL)
+    {
+        printf("the folder named: %s does not exist\n",to_dir);
+        return 0;
+    }
+    closedir(test);
+    char* y=(char*) calloc(10000,1);
+    listFilesRecursively(to_dir,y);
+    char* list[100];
+    for (int i = 0; i < 100; i++)
+    {
+        list[i]=(char*) calloc(256,1);
+    }
+    turn_str_to_list(y,list);
+    int count=0;
+    while (strcmp(list[count],"")!=0)
+    {
+        count++;
+    }
+    /////////////////////////////////////////////
+    
+    ////////////////////////////////////////
+    for (int i = 0; i < count; i++)
+    {
+            char* temp=(char*) calloc(256,1);
+            strcpy(temp,list[i]+size_of_to_dir);
+            char* new_loc=(char*) calloc(256,1);
+            strcpy(new_loc,from_dir);
+            strcat(new_loc,temp);
+            int leng =strlen(new_loc);
+            int is_file=0;
+            int wwwwwwwwwwwwwwwwwwww=0;
+            for (int j = leng-1; j  >=0; j--)
+            {
+                if (wwwwwwwwwwwwwwwwwwww==1&&*(new_loc+j)=='\\')
+                {
+                    break;
+                }
+                else if (wwwwwwwwwwwwwwwwwwww==1&&*(new_loc+j)!='\\')
+                {
+                    is_file=1;
+                }
+                
+                if (*(new_loc+j)=='.')
+                {
+                    wwwwwwwwwwwwwwwwwwww=1;
+                    
+                }
+
+            }
+
+            if (is_file)
+            {
+                FILE* file=fopen(list[i],"r+");
+                printf("changes_comited\n\n");
+                copy_textfile_withouttxt(new_loc,file);
+                fclose(file);
+                
+            }
+            else{
+                
+                
+                DIR* flag=opendir(new_loc);
+                if (flag==NULL)
+                {
+                    mkdir(new_loc);
+                }
+                closedir(flag);
+                 
+            }
+    }
+    return 0;
+}
+
+
+
+void check_out(char* branch_name,char* storage_dir,char* shiz_dir){
+    char* all_branches_loc=(char*) calloc(256,1);
+    strcpy(all_branches_loc,storage_dir);
+    strcat(all_branches_loc,"\\all_branch.txt");
+    FILE* all_branch_file=fopen(all_branches_loc,"r");
+
+    char* temp2=(char*) calloc(10000,1);
+    char* rex[100];
+    for (int i = 0; i < 100; i++)
+    {
+        rex[i]=(char*) calloc(256,1);
+    }
+    for (int i = 0; i < 10000; i++)
+    {
+        fscanf(all_branch_file,"%c",temp2+i);
+    }
+    turn_str_to_list(temp2,rex);
+    int count2=0;
+    while (strcmp(rex[count2],"")!=0)
+    {
+        count2++;
+    }
+    int is_a_branch=0;
+    for (int i = 0; i < count2; i++)
+    {
+        if (strcmp(branch_name,rex[i])==0)
+        {
+            is_a_branch=1;
+            break;
+        }
+        
+    }
+    char* last_branch_loc=(char*) calloc(256,1);
+
+    if (is_a_branch==0)
+    {
+        char* temp33=(char*) calloc(10000,1);
+        char* list[100];
+        for (int i = 0; i < 100; i++)
+        {
+            list[i]=(char*) calloc(256,1);
+        }
+        listFilesRecursively_with_depth(storage_dir,temp33,1);
+
+        turn_str_to_list(temp33,list);
+        int count33=0;
+        while (strcmp(list[count33],"")!=0)
+        {
+            count33++;
+        }
+
+        ///////////////////////////////////////////
+        char* all_branch=(char*) calloc(256,1);
+        char* head_branch=(char*) calloc(256,1);
+        char* current_branch=(char*) calloc(256,1);
+        char* previous_branch=(char*) calloc(256,1);
+        strcpy(previous_branch,storage_dir);
+        strcpy(all_branch,storage_dir);
+        strcpy(head_branch,storage_dir);
+        strcpy(current_branch,storage_dir);
+        strcat(previous_branch,"\\previous_branch.txt");
+        strcat(all_branch,"\\all_branch.txt");
+        strcat(head_branch,"\\head_branch.txt");
+        strcat(current_branch,"\\current_branch.txt");
+        char* names2[100];
+        char* message[100];
+        for (int i = 0; i < 100; i++)
+        {
+            message[i]=(char*) calloc(256,1);
+        }
+
+
+        for (int i = 0; i < 100; i++)
+        {
+            names2[i]=(char*) calloc(256,1);
+        }
+        int counter27=0;
+        for (int i = 0; i < count33; i++)
+        {
+            int siz=strlen(list[i]);
+            int qqqqq=0;
+            int is_file=0;
+            for (int j = siz-1; j >=0; j--)
+            {
+                if (qqqqq==1&&*(list[i]+j)=='\\')
+                {
+                    is_file=0;
+                    break;
+                }
+                else if (qqqqq==1&&*(list[i]+j)!='\\')
+                {
+                    is_file=1;
+                    break;
+                }
+
+
+                if (*(list[i]+j)=='.')
+                {
+                    qqqqq=1;
+
+                }
+
+            }
+            if (is_file&&comp_word(list[i],all_branch,strlen(all_branch))!=0&&comp_word(list[i],head_branch,strlen(head_branch))!=0&&comp_word(list[i],current_branch,strlen(current_branch))!=0&&comp_word(list[i],previous_branch,strlen(previous_branch))!=0)
+            {
+                strcpy(names2[counter27],list[i]);
+                counter27++;
+            }
+
+        }
+
+        for (int i = 0; i < counter27; i++)
+        {
+            FILE* fool=fopen(names2[i],"r");
+            char* tomp=(char*) calloc(256,1);
+            char* tomp2=(char*) calloc(256,1);
+            char* tomp3=(char*) calloc(256,1);
+            int a[6];
+            char* hash33=(char*) calloc(16,1);
+            fscanf(fool,"%s\n%d-%d-%d %d:%d:%d\n%s\n%s\n%s\n",tomp,a,a+1,a+2,a+3,a+4,a+5,tomp2,tomp3,hash33);
+            if (strcmp(hash33,branch_name)==0)
+            {
+                copy(last_branch_loc,names2[i],strlen(names2[i])-4);
+                break;
+            }
+
+        }
+    
+
+
+    }
+    else{
+         /////////////////////////////////////
+    char* temp=(char*) calloc(10000,1);
+    char* files_shiz[100];
+    for (int i = 0; i < 100; i++)
+    {
+        files_shiz[i]=(char*) calloc(256,1);
+    }
+    listFilesRecursively_with_depth(shiz_dir,temp,1);
+    turn_str_to_list(temp,files_shiz);
+    int count=0;
+    while (strcmp(files_shiz[count],"")!=0)
+    {
+        count++;
+    }
+    free(temp);
+    //////////////////////////////////
+    char* shiz_folder_dir=(char*) calloc(256,1);
+    strcpy(shiz_folder_dir,shiz_dir);
+    strcat(shiz_folder_dir,"\\.shiz");
+    for (int i = 0; i < count; i++)
+    {
+        if (strcmp(shiz_folder_dir,files_shiz[i])!=0)
+        {
+            int siz=strlen(files_shiz[i]);
+            int qqqqq=0;
+            int is_file=0;
+            for (int j = siz-1; j >=0; j--)
+            {
+                if (qqqqq==1&&*(files_shiz[i]+j)=='\\')
+                {
+                    is_file=0;
+                    break;
+                }
+                else if (qqqqq==1&&*(files_shiz[i]+j)!='\\')
+                {
+                    is_file=1;
+                    break;
+                }
+
+
+                if (*(files_shiz[i]+j)=='.')
+                {
+                    qqqqq=1;
+
+                }
+
+            }
+            if (is_file)
+            {
+                remove(files_shiz[i]);
+            }
+            else{
+                empty_dir(files_shiz[i]);
+                empty_dir(files_shiz[i]);
+                empty_dir(files_shiz[i]);
+                rmdir(files_shiz[i]);
+
+            }
+        
+        
+        }
+        
+    }
+    ///////////////////////////////////
+    // restoring from storage:
+    
+    char* test=(char*) calloc(256,1);
+    strcpy(test,storage_dir);
+    strcat(test,"\\");
+    strcat(test,branch_name);
+    strcat(test,"_");
+    int lengt=strlen(test);
+    FILE* test_file;
+    int num=0;
+    do
+    {
+        sprintf(test+lengt,"%d",num);
+        strcat(test,".txt");
+        test_file=fopen(test,"r");
+        num++;
+    } while (test_file!=NULL);
+    strcpy(last_branch_loc,storage_dir);
+    strcat(last_branch_loc,"\\");
+    strcat(last_branch_loc,branch_name);
+    strcat(last_branch_loc,"_");
+    int r=strlen(last_branch_loc);
+    sprintf(last_branch_loc+r,"%d",(num-2));
+    printf("%s\n",last_branch_loc);
+    printf("%s\n",shiz_dir);
+    
+    }
+    send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc,shiz_dir);
+
+
+
+   
+}
+
+
+void n_before_head(char* output,int n,char* storage_dir){
+    char* prev=(char*) calloc(256,1);
+    char* prev_loc=(char*) calloc(256,1);
+    strcpy(prev_loc,storage_dir);
+    strcat(prev_loc,"\\previous_branch.txt");
+    if (n==1)
+    {
+        FILE* fole=fopen(prev_loc,"r");
+        fscanf(fole,"%s",prev);
+        if (strcmp(prev,"NULL")==0)
+        {
+            printf("your given n is bigger then number of commits\n");
+            return;
+        }
+        strcpy(output,storage_dir);
+        strcat(output,"\\");
+        strcat(output,prev);
+
+    }
+    else{
+        for (int i = 0; i < n-1; i++)
+        {
+            FILE* fole=fopen(prev_loc,"r");
+            fscanf(fole,"%s",prev);
+            if (strcmp(prev,"NULL")==0)
+            {
+                printf("your given n is bigger then number of commits\n");
+                break;
+            }
+
+            empty_str(prev_loc,256);
+            strcpy(prev_loc,storage_dir);
+            strcat(prev_loc,"\\");
+            strcat(prev_loc,prev);
+            strcat(prev_loc,".txt");
+            empty_str(prev,256);
+            fclose(fole);
+        }
+        copy(output,prev_loc,strlen(prev_loc)-4);
+    }
+    
+    
+
+
+}
+
+
+
+
+
+
+

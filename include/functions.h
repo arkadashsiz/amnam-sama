@@ -77,7 +77,10 @@ void branch(char* branch_name,char* current_branch,char* previous_branch,char* s
 void show_all_branches(char* storage_dir);
 int compare_two_dates(int* a,int* b);
 void sort_file_by_date(char* files[],int* nums[6],int length_arrays);
-void check_out();
+
+int send_rec_to_shiz(int size_of_shiz_dir,char* current_dir,char* stage_dir);
+void check_out(char* branch_name,char* storage_dir,char* shiz_dir);
+void n_before_head(char* output,int n,char* storage_dir);
 void logs_branch(char* branch_name,char* storage_dir);
 void logs_author(char* author_name,char* storage_dir);
 void logs_time(int mode,char* time,char* storage_dir);

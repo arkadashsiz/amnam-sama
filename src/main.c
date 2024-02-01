@@ -209,7 +209,31 @@ int main(int argc,char *argv[]){
         {
             branch(argv[2],current_branch,previous_branch,storage_dir);
         }
-        
+        else if (strcmp(argv[1],"checkout")==0)
+        {
+
+            check_out(argv[2],storage_dir,shiz_dir);
+        }
+        else if (strcmp(argv[1],"checkout")==0&&strcmp(argv[1],"HEAD")==0)
+        {
+            char* head=(char*) calloc(256,1);
+            char* head_loc=(char*) calloc(256,1);
+            strcpy(head_loc,storage_dir);
+            strcat(head_loc,"\\head_branch.txt");
+            FILE* tombussy=fopen(head_loc,"r");
+            fscanf(tombussy,"%s",head);
+            fclose(tombussy);
+            int tempwasadream=0;
+            while (*(head+tempwasadream)!='_')
+            {
+                tempwasadream++;
+            }
+            char* exit=(char*) calloc(256,1);
+            copy(exit,head,tempwasadream);
+            
+            check_out(exit,storage_dir,shiz_dir);
+        }
+
     
 
 
@@ -296,6 +320,12 @@ int main(int argc,char *argv[]){
         else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-search")==0)
         {
             logs_word(argv[3],storage_dir);
+        }
+        else if (strcmp(argv[1],"checkout")==0&&strcmp(argv[1],"HEAD")==0)
+        {
+            char* orgy_loc=(char*) calloc(256,1);
+            n_before_head(orgy_loc,decipher(strlen(argv[3]),argv[3]),storage_dir);
+            check_out(orgy_loc,storage_dir,shiz_dir);
         }
 
     }
