@@ -86,6 +86,8 @@ void logs_author(char* author_name,char* storage_dir);
 void logs_time(int mode,char* time,char* storage_dir);
 void logs_word(char* word,char* storage_dir);
 
+void revert_with_out_commit(char* pos_of_wanted_commit_to_revert,char* commit_id,char* storage_dir,char* shiz_dir);
+
 #endif
 
 

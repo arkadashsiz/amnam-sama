@@ -214,7 +214,7 @@ int main(int argc,char *argv[]){
 
             check_out(argv[2],storage_dir,shiz_dir);
         }
-        else if (strcmp(argv[1],"checkout")==0&&strcmp(argv[1],"HEAD")==0)
+        else if (strcmp(argv[1],"checkout")==0&&strcmp(argv[2],"HEAD")==0)
         {
             char* head=(char*) calloc(256,1);
             char* head_loc=(char*) calloc(256,1);
@@ -233,7 +233,28 @@ int main(int argc,char *argv[]){
             
             check_out(exit,storage_dir,shiz_dir);
         }
+        else if (strcmp(argv[1],"revert")==0)
+        {
+            char* pos_of_wanted_commit_to_revert=(char*) calloc(256,1);
+            revert_with_out_commit(pos_of_wanted_commit_to_revert,argv[2],storage_dir,shiz_dir);
+            
+            send_rec_to_shiz(strlen(pos_of_wanted_commit_to_revert),pos_of_wanted_commit_to_revert,shiz_dir);
+            send_to_storage(strlen(shiz_dir),strlen(shiz_dir),shiz_dir,stage_dir,current_dir);
+            char w[24]="this is reverted commit";
+            commit(previous_branch,number_files(stage_dir),user_name,current_branch,w,stage_dir,storage_dir,shiz_dir);
+            FILE* egg=fopen(previous_file_location,"r+");
+            fprintf(egg,"%s",previous_branch);
+            FILE* temp33=fopen(current_branch_dir,"r+");
+            fprintf(temp33,"%s",current_branch);
+            fclose(temp33);
+            fclose(egg);
+            empty_dir(stage_dir);
+            empty_dir(stage_dir);
+            empty_dir(stage_dir);
+            empty_dir(stage_dir);
 
+
+        }
     
 
 
@@ -327,7 +348,15 @@ int main(int argc,char *argv[]){
             n_before_head(orgy_loc,decipher(strlen(argv[3]),argv[3]),storage_dir);
             check_out(orgy_loc,storage_dir,shiz_dir);
         }
+        else if (strcmp(argv[1],"revert")==0&&strcmp(argv[2],"-n")==0)
+        {
+            char* pos_of_wanted_commit_to_revert=(char*) calloc(256,1);
+            revert_with_out_commit(pos_of_wanted_commit_to_revert,argv[2],storage_dir,shiz_dir);
+            send_to_storage(strlen(shiz_dir),strlen(shiz_dir),shiz_dir,stage_dir,current_dir);
+    
 
+
+        }
     }
     
     else if (argc==5)

@@ -1551,7 +1551,7 @@ void commit(char* previous_branch,int number_files,char* user_name,char* current
     ///////////////////////
     time_t t = time(NULL);
     struct tm time = *localtime(&t);
-    char* hash_id=(char*) calloc(16,1);
+    unsigned char* hash_id=(unsigned char*) calloc(16,1);
     char* commit_dir=(char*) calloc(256,1);
     strcpy(commit_dir,storage_dir);
     strcat(commit_dir,"\\");
@@ -2767,6 +2767,92 @@ void n_before_head(char* output,int n,char* storage_dir){
 
 
 
+void revert_with_out_commit(char* pos_of_wanted_commit_to_revert,char* commit_id,char* storage_dir,char* shiz_dir){
+    char* last_branch_loc=(char*) calloc(256,1);
+    char* temp33=(char*) calloc(10000,1);
+    char* list[100];
+    for (int i = 0; i < 100; i++)
+    {
+        list[i]=(char*) calloc(256,1);
+    }
+    listFilesRecursively_with_depth(storage_dir,temp33,1);
+    turn_str_to_list(temp33,list);
+    int count33=0;
+    while (strcmp(list[count33],"")!=0)
+    {
+        count33++;
+    }
+    ///////////////////////////////////////////
+    char* all_branch=(char*) calloc(256,1);
+    char* head_branch=(char*) calloc(256,1);
+    char* current_branch=(char*) calloc(256,1);
+    char* previous_branch=(char*) calloc(256,1);
+    strcpy(previous_branch,storage_dir);
+    strcpy(all_branch,storage_dir);
+    strcpy(head_branch,storage_dir);
+    strcpy(current_branch,storage_dir);
+    strcat(previous_branch,"\\previous_branch.txt");
+    strcat(all_branch,"\\all_branch.txt");
+    strcat(head_branch,"\\head_branch.txt");
+    strcat(current_branch,"\\current_branch.txt");
+    char* names2[100];
+    char* message[100];
+    for (int i = 0; i < 100; i++)
+    {
+        message[i]=(char*) calloc(256,1);
+    }
+    for (int i = 0; i < 100; i++)
+    {
+        names2[i]=(char*) calloc(256,1);
+    }
+    int counter27=0;
+    for (int i = 0; i < count33; i++)
+    {
+        int siz=strlen(list[i]);
+        int qqqqq=0;
+        int is_file=0;
+        for (int j = siz-1; j >=0; j--)
+        {
+            if (qqqqq==1&&*(list[i]+j)=='\\')
+            {
+                is_file=0;
+                break;
+            }
+            else if (qqqqq==1&&*(list[i]+j)!='\\')
+            {
+                is_file=1;
+                break;
+            }
+            if (*(list[i]+j)=='.')
+            {
+                qqqqq=1;
+            }
+        }
+        if (is_file&&comp_word(list[i],all_branch,strlen(all_branch))!=0&&comp_word(list[i],head_branch,strlen(head_branch))!=0&&comp_word(list[i],current_branch,strlen(current_branch))!=0&&comp_word(list[i],previous_branch,strlen(previous_branch))!=0)
+        {
+            strcpy(names2[counter27],list[i]);
+            counter27++;
+        }
+    }
+    for (int i = 0; i < counter27; i++)
+    {
+        FILE* fool=fopen(names2[i],"r");
+        char* tomp=(char*) calloc(256,1);
+        char* tomp2=(char*) calloc(256,1);
+        char* tomp3=(char*) calloc(256,1);
+        int a[6];
+        char* hash33=(char*) calloc(16,1);
+        fscanf(fool,"%s\n%d-%d-%d %d:%d:%d\n%s\n%s\n%s\n",tomp,a,a+1,a+2,a+3,a+4,a+5,tomp2,tomp3,hash33);
+        if (strcmp(hash33,commit_id)==0)
+        {
+            copy(last_branch_loc,names2[i],strlen(names2[i])-4);
+            break;
+        }
+    }
 
+    //last branch loc is the one with given id
+    strcpy(pos_of_wanted_commit_to_revert,last_branch_loc);
+    send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc,shiz_dir);
+}
 
 
