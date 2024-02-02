@@ -448,6 +448,56 @@ int find_shiz_local_dir(char*output,char* file_dir,int depth){
 
 }
 
+int check_is_real_command(char* command){
+    //
+    char* commands[100];
+    for (int i = 0; i < 100; i++)
+    {
+        commands[i]=(char*) calloc(256,1);
+    }
+    strcpy(commands[0],"config -global user.name");
+    strcpy(commands[1],"config -global user.email");
+    strcpy(commands[2],"config user.email");
+    strcpy(commands[3],"config user.name");
+    strcpy(commands[4],"init");
+    strcpy(commands[5],"add");
+    strcpy(commands[6],"add -f");
+    strcpy(commands[7],"add -n");
+    strcpy(commands[8],"add -redo");
+    strcpy(commands[9],"rest");
+    strcpy(commands[10],"rest -undo");
+    strcpy(commands[11],"status");
+    strcpy(commands[12],"commit -m");
+    strcpy(commands[13],"set -m");
+    strcpy(commands[14],"replace -m");
+    strcpy(commands[15],"remove -s");
+    strcpy(commands[16],"log");
+    strcpy(commands[17],"log -n");
+    strcpy(commands[18],"log -branch");
+    strcpy(commands[19],"log -author");
+    strcpy(commands[20],"log -since");
+    strcpy(commands[21],"log -before");
+    strcpy(commands[22],"log -search");
+    strcpy(commands[23],"branch");
+    strcpy(commands[24],"checkout");
+    strcpy(commands[25],"checkout HEAD");
+    //
+    int is_possible=0;
+    for (int i = 0; i < 26; i++)
+    {
+        if (strcmp(command,commands[i])==0)
+        {
+            is_possible=1;
+            break;
+        }
+        
+    }
+    
+    return is_possible;
+
+
+}
+
 int config_glob_name(int argc,char *argv[]){
     int check =check_file("c:\\shiz\\name.txt");
     FILE* file;
@@ -504,7 +554,16 @@ int config_glob_alias(int argc,char *argv[]){
         }
         
     }
-    fprintf(file,"%s is: %s \n",alias,argv[4]);
+    
+    int flag1=check_is_real_command(argv[4]);
+    if (flag1==1)
+    {
+        fprintf(file,"%s:%s \n",alias,argv[4]);
+    }
+    else{
+        printf("Invalid Command\n");
+    }
+    
 }
 
 
@@ -580,7 +639,16 @@ int config_alias(int argc,char *argv[],char* current_dir){
         }
         
     }
-    fprintf(file,"%s is: %s \n",alias,argv[3]);
+    
+    int flag1=check_is_real_command(argv[3]);
+    if (flag1==1)
+    {
+        fprintf(file,"%s:%s \n",alias,argv[3]);
+    }
+    else{
+        printf("Invalid Command\n");
+    }
+    
 }
 
 
@@ -1188,7 +1256,104 @@ void check_staged_rec(char* current_dir,char* stage_dir,char* shiz_dir,int depth
 
 
 void redo_stage(char* stage_dir,char* shiz_dir){
-    //to be imlemented
+    char* temp =(char*) calloc(10000,1);
+    listFilesRecursively_stage(stage_dir,temp);
+    char* list_files_stage[100];
+    for (int i = 0; i < 100; i++)
+    {
+        list_files_stage[i]=(char*) calloc(256,1);
+    }
+    turn_str_to_list(temp,list_files_stage);
+    int count=0;
+    while (strcmp(list_files_stage[count],"")!=0)
+    {
+        count++;
+    }
+    /////////////////////////////////////
+    char* temp2 =(char*) calloc(10000,1);
+    listFilesRecursively(shiz_dir,temp2);
+    char* list_files[100];
+    for (int i = 0; i < 100; i++)
+    {
+        list_files[i]=(char*) calloc(256,1);
+    }
+    turn_str_to_list(temp2,list_files);
+    int count1=0;
+    while (strcmp(list_files[count1],"")!=0)
+    {
+        count1++;
+    }
+    /////////////////////////////////////
+    int does_exist=0;
+    for (int j = 0; j < count1; j++)
+        {
+            does_exist=0;
+            for (int k = 0; k < count; k++)
+            {
+                if (strcmp(list_files_stage[k]+strlen(stage_dir),list_files[j]+strlen(shiz_dir))==0)
+                {
+                    does_exist=1;
+                    break;
+                }
+            }
+            if (does_exist==0&&*(list_files[j]+strlen(shiz_dir)+1)!='.')
+            {
+                printf("%s: -A\n",list_files[j]);
+            }
+            
+            
+            
+        }
+    for (int i = 0; i < count; i++)
+    {
+        int x=check_if_staged_reverse(list_files_stage[i],stage_dir,shiz_dir);
+        
+        char* out1=(char*) calloc(256,1);
+        strcpy(out1,shiz_dir);
+        strcat(out1,list_files_stage[i]+strlen(stage_dir));
+        if (comp_word(list_files[i],shiz_dir,strlen(shiz_dir))==0)
+        {
+            if (x==0)
+            {
+                
+            }
+            else if (x==1)
+            {
+                
+            }
+            else if (x==2)
+            {
+                send_to_storage(strlen(shiz_dir),strlen(shiz_dir),list_files[i],stage_dir,shiz_dir);
+            }
+            else if (x==-1)
+            {
+                
+            }
+        }
+        
+        
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -1530,6 +1695,141 @@ void empty_dir(char* dir){
 }
 
 
+
+
+
+void listFilesRecursively_noshiz(char* shiz_dir,char *current_dir,char* out_list)
+{
+    char* temp=(char*) calloc(256,1);
+    strcpy(temp,shiz_dir);
+    strcat(temp,"\\.shiz");
+    char path[1000];
+    struct dirent *dp;
+    DIR *dir = opendir(current_dir);
+
+    // Unable to open directory stream
+    if (!dir)
+    {
+        return;
+    }
+    while ((dp = readdir(dir)) != NULL)
+    {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
+        {
+            strcat(out_list,current_dir);
+            strcat(out_list,"\\");
+            strcat(out_list,dp->d_name);
+            strcat(out_list,"\n");
+            
+            // Construct new path from our base path
+            strcpy(path, current_dir);
+            strcat(path, "\\");
+            strcat(path, dp->d_name);
+            if (comp_word(path,temp,strlen(temp))==0)
+            {
+                /* code */
+            }
+            else{
+                listFilesRecursively_noshiz(shiz_dir,path,out_list);
+            }
+            
+        }
+    }
+
+    closedir(dir);
+}
+
+
+
+
+void empty_shiz_dir(char* shiz_dir){
+    char* temp=(char*) calloc(10000,1);
+    char* files[100];
+    for (int i = 0; i < 100; i++)
+    {
+        files[i]=(char*) calloc(256,1);
+    }
+    listFilesRecursively_noshiz(shiz_dir,shiz_dir,temp);
+    turn_str_to_list(temp,files);
+    int count=0;
+
+    while (strcmp(files[count],"")!=0)
+    {
+        count++;
+    }
+    for (int i = 0; i < count; i++)
+    {
+        int siz=strlen(files[i]);
+        int qqqqq=0;
+        int is_file=0;
+        for (int j = siz-1; j >=0; j--)
+        {
+            if (qqqqq==1&&*(files[i]+j)=='\\')
+            {
+                is_file=0;
+                break;
+            }
+            else if (qqqqq==1&&*(files[i]+j)!='\\')
+            {
+                is_file=1;
+                break;
+            }
+
+
+            if (*(files[i]+j)=='.')
+            {
+                qqqqq=1;
+
+            }
+
+        }
+        if (is_file==1)
+        {
+            
+            remove(files[i]);
+        }
+        
+    
+    }
+    for (int i = 0; i < count; i++)
+    {
+        int siz=strlen(files[i]);
+        int qqqqq=0;
+        int is_file=0;
+        for (int j = siz-1; j >=0; j--)
+        {
+            if (qqqqq==1&&*(files[i]+j)=='\\')
+            {
+                is_file=0;
+                break;
+            }
+            else if (qqqqq==1&&*(files[i]+j)!='\\')
+            {
+                is_file=1;
+                break;
+            }
+
+
+            if (*(files[i]+j)=='.')
+            {
+                qqqqq=1;
+
+            }
+
+        }
+        if (is_file==0)
+        {
+            
+            _rmdir(files[i]);
+        }
+        
+    
+    }
+
+
+
+}
+
 void commit(char* previous_branch,int number_files,char* user_name,char* current_branch,char* commit_message,char* stage_dir,char* storage_dir,char* shiz_dir){
     
     if (strlen(commit_message)>72)
@@ -1689,21 +1989,42 @@ int compare_two_dates(int* a,int* b){
 }
 
 void sort_file_by_date(char* files[],int* nums[],int length_arrays){
-    char* temp=(char*) calloc(256,1);
+    
     for (int i = 0; i < length_arrays; i++)
     {
-        int index=i;
-        for (int j = i; j < length_arrays; j++)
+        
+        int swapped=0;
+        for (int j = 0; j < length_arrays-i-1; j++)
         {
-            if (compare_two_dates(nums[index],nums[j])==-1)
+            int* temp2=(int*) calloc(4,6);
+            char* temp=(char*) calloc(256,1);
+
+            if (compare_two_dates(nums[j],nums[j+1])==-1)
             {
-                index=j;
+                swapped=1;
+                for (int w = 0; w < 6; w++)
+                {
+                    *(temp2+w)=*(nums[j]+w);
+                }
+                for (int w = 0; w < 6; w++)
+                {
+                    *(nums[j]+w)=*(nums[j+1]+w);
+                }
+                for (int w = 0; w < 6; w++)
+                {
+                    *(nums[j+1]+w)=*(temp2+w);
+                }
+                strcpy(temp,files[j]);
+                strcpy(files[j],files[j+1]);
+                strcpy(files[j+1],temp);
             }
             
         }
-        strcpy(temp,files[i]);
-        strcpy(files[i],files[index]);
-        strcpy(files[index],temp);
+        if (swapped==0)
+        {
+            break;
+        }
+        
         
     }
     
@@ -2362,11 +2683,16 @@ void logs_word(char* word,char* storage_dir){
     char* MUDA;
     for (int i = 0; i < counter2; i++)
     {
+        printf("%s\n",names2[i]);
+    }
+    printf("\n\n\n");
+    for (int i = 0; i < counter2; i++)
+    {
        data_file=fopen(names2[i],"r+");
        
        
        MUDA=(char*) calloc(256,1);
-       fscanf(data_file,"%s\n%d-%d-%d %d:%d:%d\n%s\n%s\n",MUDA,a[i]+0,a[i]+1,a[i]+2,a[i]+3,a[i]+4,a[i]+5);
+       fscanf(data_file,"%s\n%d-%d-%d %d:%d:%d",MUDA,a[i]+0,a[i]+1,a[i]+2,a[i]+3,a[i]+4,a[i]+5);
        fclose(data_file);
        
     }
@@ -2374,12 +2700,19 @@ void logs_word(char* word,char* storage_dir){
     sort_file_by_date(names2,a,counter2);
     for (int i = 0; i < counter2; i++)
     {
+        printf("%s\n",names2[i]);
+    }
+    printf("\n\n\n");
+    for (int i = 0; i < counter2; i++)
+    {
        data_file=fopen(names2[i],"r+");
        
        
        MUDA=(char*) calloc(256,1);
        char* MUDA2=(char*) calloc(256,1);
-       fscanf(data_file,"%s\n%d-%d-%d %d:%d:%d\n%s",MUDA,a[i]+0,a[i]+1,a[i]+2,a[i]+3,a[i]+4,a[i]+5,message[i]);
+       fscanf(data_file,"%s\n%d-%d-%d %d:%d:%d",MUDA,a[i]+0,a[i]+1,a[i]+2,a[i]+3,a[i]+4,a[i]+5);
+       fseek(data_file,strlen(MUDA)+23,0);
+       fgets(message[i],100,data_file);
        fclose(data_file);
        
     }
@@ -2488,6 +2821,8 @@ int send_rec_to_shiz(int size_of_to_dir,char* to_dir,char* from_dir){
 
 
 void check_out(char* branch_name,char* storage_dir,char* shiz_dir){
+    empty_shiz_dir(shiz_dir);
+    empty_shiz_dir(shiz_dir);
     char* all_branches_loc=(char*) calloc(256,1);
     strcpy(all_branches_loc,storage_dir);
     strcat(all_branches_loc,"\\all_branch.txt");
@@ -2601,13 +2936,37 @@ void check_out(char* branch_name,char* storage_dir,char* shiz_dir){
         for (int i = 0; i < counter27; i++)
         {
             FILE* fool=fopen(names2[i],"r");
-            char* tomp=(char*) calloc(256,1);
-            char* tomp2=(char*) calloc(256,1);
-            char* tomp3=(char*) calloc(256,1);
-            int a[6];
-            char* hash33=(char*) calloc(16,1);
-            fscanf(fool,"%s\n%d-%d-%d %d:%d:%d\n%s\n%s\n%s\n",tomp,a,a+1,a+2,a+3,a+4,a+5,tomp2,tomp3,hash33);
-            if (strcmp(hash33,branch_name)==0)
+            unsigned char* hash33=(unsigned char*) calloc(16,1);
+            fseek(fool,0,2);
+            int hy=0;
+            char cum;
+            int loz=ftell(fool);
+            while (hy<=5)
+            {
+                fseek(fool,loz,0);
+                fscanf(fool,"%c",&cum);
+                if (cum=='\n')
+                {
+                    hy++;
+                }
+                loz--;
+            }            
+            
+            
+            for (int vv = 0; vv < 100; vv++)
+            {
+                fseek(fool,loz+2,0);
+                fscanf(fool,"%c",hash33+vv);
+                loz++;
+                if (*(hash33+vv)=='\n')
+                {
+                    break;
+                }
+                
+            }
+            
+            
+            if (comp_word(hash33,branch_name,strlen(branch_name))==0)
             {
                 copy(last_branch_loc,names2[i],strlen(names2[i])-4);
                 break;
@@ -2710,6 +3069,7 @@ void check_out(char* branch_name,char* storage_dir,char* shiz_dir){
     printf("%s\n",shiz_dir);
     
     }
+    
     send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc,shiz_dir);
 
 

@@ -72,7 +72,11 @@ void commit(char* previous_branch,int number_files,char* user_name,char* current
 void empty_dir(char* dir);
 void show_commit_id(char* commit_id);
 void logs(int how_many_you_want_you_cute_little_shit_i_hate_you,char* storage_dir);
+void listFilesRecursively_noshiz(char* shiz_dir,char *current_dir,char* out_list);
 
+int check_is_real_command(char* command);
+
+void empty_shiz_dir(char* shiz_dir);
 void branch(char* branch_name,char* current_branch,char* previous_branch,char* storage_dir);
 void show_all_branches(char* storage_dir);
 int compare_two_dates(int* a,int* b);

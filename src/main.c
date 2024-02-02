@@ -13,7 +13,14 @@ int main(int argc,char *argv[]){
 
 
 #endif
-
+    int argcv=argc;
+    char* argvv[argc];
+    for (int i = 0; i < argc; i++)
+    {
+        argvv[i]=(char*) calloc(256,1);
+        strcpy(argvv[i],argv[i]);
+    }
+    
     check_global_dir();
     //current working diractory
     char* current_dir=(char*)calloc(256,1);
@@ -55,6 +62,9 @@ int main(int argc,char *argv[]){
         fclose(current_branch_file);
         fclose(previous_branch_file);
         fclose(user_name_file);
+        //////////////////////////////////
+        //alias:
+        
     }
     
     
@@ -201,6 +211,10 @@ int main(int argc,char *argv[]){
         {
             unstage(stage_dir,shiz_dir,argv[2],current_dir);
         }
+        else if (strcmp(argv[1],"rest")==0&&strcmp(argv[2],"-undo")==0)
+        {
+            //busssss
+        }
         else if (strcmp(argv[1],"check-stage")==0)
         {
             printf("out code is:%d\n",check_if_staged_reverse(argv[2],stage_dir,shiz_dir));
@@ -255,7 +269,11 @@ int main(int argc,char *argv[]){
 
 
         }
-    
+        else if (strcmp(argv[1],"clear")==0&&strcmp(argv[2],"shiz")==0)
+        {
+            empty_shiz_dir(shiz_dir);
+            empty_shiz_dir(shiz_dir);
+        }
 
 
     }
@@ -291,7 +309,6 @@ int main(int argc,char *argv[]){
             }
             else{
                 config_alias(argc,argv,current_dir);
-                //currently it does not return an error for non functioning commands
             }
         }
         else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"-f")==0)
@@ -315,7 +332,11 @@ int main(int argc,char *argv[]){
             empty_dir(stage_dir);
         }
         else if (strcmp("remove",argv[1])==0&&strcmp("-s",argv[2])==0){
-            //to be imlemented
+            char* loc=(char*) calloc(256,1);
+            strcpy(loc,shiz_dir);
+            strcat(loc,"\\.shiz\\shortcut.txt");
+            FILE* fer=fopen(loc,"w+");
+            fclose(fer);
         }
         else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-n")==0)
         {
@@ -340,7 +361,7 @@ int main(int argc,char *argv[]){
         }
         else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-search")==0)
         {
-            logs_word(argv[3],storage_dir);
+            //logs_word(argv[3],storage_dir);
         }
         else if (strcmp(argv[1],"checkout")==0&&strcmp(argv[1],"HEAD")==0)
         {
@@ -377,12 +398,24 @@ int main(int argc,char *argv[]){
     }
     else if (argc==6)
     {
-        if (strcmp("set",argv[1])==0&&strcmp("-m",argv[2])==0&&strcmp("-s",argv[4])==0){
+        if (strcmp("set",argv[1])==0&&strcmp("-m",argv[2])==0&&strcmp("-s",argv[4])==0)
+        {
+            char* loc=(char*) calloc(256,1);
+            strcpy(loc,shiz_dir);
+            strcat(loc,"\\.shiz\\shortcut.txt");
+            FILE* fer=fopen(loc,"w+");
+            fprintf(fer,"%s:%s\n",argv[5],argv[3]);
+            fclose(fer);
 
-            //to be imlemented
         }
-        else if (strcmp("replace",argv[1])==0&&strcmp("-m",argv[2])==0&&strcmp("-s",argv[4])==0){
-            //to be imlemented
+        else if (strcmp("replace",argv[1])==0&&strcmp("-m",argv[2])==0&&strcmp("-s",argv[4])==0)
+        {
+            char* loc=(char*) calloc(256,1);
+            strcpy(loc,shiz_dir);
+            strcat(loc,"\\.shiz\\shortcut.txt");
+            FILE* fer=fopen(loc,"w+");
+            fprintf(fer,"%s:%s\n",argv[5],argv[3]);
+            fclose(fer);
 
         }
 
