@@ -880,6 +880,8 @@ void turn_str_to_list(char* string,char* list[]){
         pos=word_pos(string,pos,1);
     } while (leng>0);
 }
+
+
 int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* current_dir,char* stage_dir){
     ////////////////////////////////
     DIR* test =opendir(current_dir);
@@ -890,7 +892,8 @@ int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* 
     }
     closedir(test);
     ////////////////////////////////////
-    char* y=(char*) calloc(10000,1);
+    char* y=(char*) calloc(100000,1);
+    
     listFilesRecursively(current_dir,y);
     char* list[100];
     for (int i = 0; i < 100; i++)
@@ -898,7 +901,7 @@ int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* 
         list[i]=(char*) calloc(256,1);
     }
     turn_str_to_list(y,list);
-
+    
     ///////////////////////////////////////
     int count=0;
     while (strcmp(list[count],"")!=0)
@@ -909,6 +912,7 @@ int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* 
     char* making_folders=(char*) calloc(256,1);
     strcpy(making_folders,current_dir+size_of_shiz_dir);
     int counter=0;
+    
     char* temp_folder=(char*) calloc(256,1);
     strcpy(temp_folder,stage_dir);
     int stage_dir_len=strlen(temp_folder);
@@ -940,6 +944,7 @@ int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* 
     char* shiz=(char*) calloc(256,1);
     copy(shiz,current_dir,size_of_shiz_dir);
     strcat(shiz,"\\.shiz");
+    
     ////////////////////////////////////////
     for (int i = 0; i < count; i++)
     {
@@ -1096,6 +1101,7 @@ int send_to_storage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* fi
         
     }
     DIR* dor=opendir(temp_folder);
+    
     if (dor==NULL)
     {
         mkdir(temp_folder);
@@ -1141,8 +1147,8 @@ int send_to_storage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* fi
         }
     }
     else{
+        printf("isten");
         send_rec_to_stage(size_of_shiz_dir,strlen(new_file_or_dir),new_file_or_dir,stage_dir);
-
     }
 }
 
@@ -3214,5 +3220,976 @@ void revert_with_out_commit(char* pos_of_wanted_commit_to_revert,char* commit_id
     strcpy(pos_of_wanted_commit_to_revert,last_branch_loc);
     send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc,shiz_dir);
 }
+
+
+
+
+
+
+
+
+
+void find_line(char* out,FILE* file, int line){
+
+    int x=0;
+    char w;
+    int cum=0;
+    int wasn=1;
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(file,i,0);
+        fscanf(file,"%c",&w);
+
+        if (w=='\n')
+        {
+            wasn=1;
+            x++;
+            cum=i+1;
+        }
+        else if (wasn==1&&w!='n')
+        {
+            //cum=i;
+            wasn=0;
+        }
+        
+        if (x==line*2)
+        {
+            break;
+        }
+        
+    }
+    int o=0;
+    for (int i = 0; i < 1000; i++)
+    {
+        fseek(file,cum+i,0);
+        fscanf(file,"%c",&w);
+        *(out+o)=w;
+        o++;
+        if (w=='\n')
+        {
+            break;
+        }
+        
+    }
+    
+
+
+
+}
+
+
+int line_size(char *A,int start_pos){
+    int i=0;
+    while (1)
+    {
+        
+        if (*(A+i+start_pos)=='\n'||*(A+i+start_pos)=='\0')
+        {
+            break;
+        }
+        
+        i++;
+    }
+    return i;
+}
+//start position of a line knowing start position of another line
+// and line distance between them
+int line_pos(char *A,int start_pos,int amount){
+    int ret_val=start_pos;
+    for (int i = 0; i < amount; i++)
+    {
+        ret_val+=line_size(A,ret_val)+1;
+    }
+    return ret_val;
+
+}
+
+void turn_line_to_list(char* string,char* list[]){
+    int pos=0;
+    int leng;
+    int i=0;
+    do
+    {
+        leng=line_size(string,pos);
+        copy(list[i],string+pos,leng);
+        i++;
+        pos=line_pos(string,pos,1);
+    } while (leng>0);
+}
+
+void turn_str_to_list2(char* string,char* list[]){
+    int pos=0;
+    int leng;
+    for(int w; w<90;w++)
+    {
+        leng=word_size(string,pos);
+        copy(list[w],string+pos,leng);
+        
+        pos=word_pos(string,pos,1);
+    }
+}
+
+void read_file_without_nullspace(char* out,FILE* file){
+    char* temp=(char*) calloc(10000,1);
+    int did_find_space=0;
+    int back=0;
+    int counter=0;
+    char x;
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(file,i,0);
+        fscanf(file,"%c",&x);
+        if (x=='\n')
+        {
+            did_find_space=1;
+        }
+        else{
+            back=0;
+            did_find_space=0;
+        }
+        if (did_find_space==0)
+        {
+            *(temp+counter)=x;
+            counter++;
+        }
+        else if (did_find_space==1&&back==0)
+        {
+            back=1;
+            *(temp+counter)=x;
+            counter++;
+        }
+        
+    }
+    
+    for (int i = 0; i < counter; i++)
+    {
+        *(out+i)=*(temp+i);
+    }
+    
+    fseek(file,0,0);
+
+}
+
+void diff(char* file_loc1,char* file_loc2){
+    
+    int leng =strlen(file_loc1);
+    int is_file=0;
+    int wwwwwwwwwwwwwwwwwwww=0;
+    for (int j = leng-1; j  >=0; j--)
+    {
+        if (wwwwwwwwwwwwwwwwwwww==1&&*(file_loc1+j)=='\\')
+        {
+            break;
+        }
+        else if (wwwwwwwwwwwwwwwwwwww==1&&*(file_loc1+j)!='\\')
+        {
+            is_file=1;
+        }
+        
+        if (*(file_loc1+j)=='.')
+        {
+            wwwwwwwwwwwwwwwwwwww=1;
+            
+        }
+    }
+
+    int leng2 =strlen(file_loc2);
+    int is_file2=0;
+    int wwwwwwwwwwwwwwwwwwww2=0;
+    for (int j = leng-1; j  >=0; j--)
+    {
+        if (wwwwwwwwwwwwwwwwwwww2==1&&*(file_loc2+j)=='\\')
+        {
+            break;
+        }
+        else if (wwwwwwwwwwwwwwwwwwww2==1&&*(file_loc2+j)!='\\')
+        {
+            is_file2=1;
+        }
+        
+        if (*(file_loc2+j)=='.')
+        {
+            wwwwwwwwwwwwwwwwwwww2=1;
+            
+        }
+    }
+    if (is_file==0||is_file2==0)
+    {
+        printf("not file\n");
+        return;
+    }
+    
+    FILE* f1=fopen(file_loc1,"r+");
+    FILE* f2=fopen(file_loc2,"r+");
+    char* file1=(char*) calloc(10000,1);
+    char* file2=(char*) calloc(10000,1);
+    char* bussy1=(char*) calloc(10000,1);
+    char* bussy2=(char*) calloc(10000,1);
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(f1,i,0);
+        fscanf(f1,"%c",bussy1+i);
+    }
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(f2,i,0);
+        fscanf(f2,"%c",bussy2+i);
+    }
+    fseek(f1,0,0);
+    fseek(f2,0,0);
+    read_file_without_nullspace(file1,f1);
+    read_file_without_nullspace(file2,f2);
+    char* lines1[30];
+    char* lines2[30];
+    char* gyalines1[100];
+    char* gyalines2[100];
+    for (int i = 0; i < 30; i++)
+    {
+        lines1[i]=(char*) calloc(10000,1);
+        lines2[i]=(char*) calloc(10000,1);
+    }
+    for (int i = 0; i < 100; i++)
+    {
+        gyalines1[i]=(char*) calloc(1000,1);
+        gyalines2[i]=(char*) calloc(1000,1);
+    }
+
+    turn_line_to_list(file1,lines1);
+    turn_line_to_list(file2,lines2);
+
+    turn_str_to_list2(bussy1,gyalines1);
+    turn_str_to_list2(bussy2,gyalines2);
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (strcmp(lines1[i],lines2[i])!=0)
+        {
+            int line1=0;
+            int line2=0;
+            for (int j = 0; j < 100; j++)
+            {
+                if (strcmp(lines1[i],gyalines1[j])==0)
+                {
+                   line1=j/2-2;
+                   break;
+                }
+                
+            }
+            for (int j = 0; j < 100; j++)
+            {
+                if (strcmp(lines2[i],gyalines2[j])==0)
+                {
+                   line2=j/2-2;
+                   break;
+                }
+                
+            }
+            printf(KMAG"<<<<<<<<\n"RESET);
+            printf(KBLU"%s-%d\n"RESET,file_loc1,line1);
+            
+            
+            printf(KRED"%s\n"RESET,lines1[i]);
+            printf(KBLU"%s-%d\n"RESET,file_loc2,i+1);
+            printf(KRED"%s\n"RESET,lines2[i]);
+            printf(KMAG">>>>>>>>\n\n"RESET);
+        }
+    }
+}
+
+
+void diff_commits(char* id1,char* id2,char* storage_dir){
+    
+    char* last_branch_loc1=(char*) calloc(256,1);
+
+    {
+        char* temp33=(char*) calloc(10000,1);
+        char* list[100];
+        for (int i = 0; i < 100; i++)
+        {
+            list[i]=(char*) calloc(256,1);
+        }
+        listFilesRecursively_with_depth(storage_dir,temp33,1);
+
+        turn_str_to_list(temp33,list);
+        int count33=0;
+        while (strcmp(list[count33],"")!=0)
+        {
+            count33++;
+        }
+
+        ///////////////////////////////////////////
+        char* all_branch=(char*) calloc(256,1);
+        char* head_branch=(char*) calloc(256,1);
+        char* current_branch=(char*) calloc(256,1);
+        char* previous_branch=(char*) calloc(256,1);
+        strcpy(previous_branch,storage_dir);
+        strcpy(all_branch,storage_dir);
+        strcpy(head_branch,storage_dir);
+        strcpy(current_branch,storage_dir);
+        strcat(previous_branch,"\\previous_branch.txt");
+        strcat(all_branch,"\\all_branch.txt");
+        strcat(head_branch,"\\head_branch.txt");
+        strcat(current_branch,"\\current_branch.txt");
+        char* names2[100];
+        
+
+
+        for (int i = 0; i < 100; i++)
+        {
+            names2[i]=(char*) calloc(256,1);
+        }
+        int counter27=0;
+        for (int i = 0; i < count33; i++)
+        {
+            int siz=strlen(list[i]);
+            int qqqqq=0;
+            int is_file=0;
+            for (int j = siz-1; j >=0; j--)
+            {
+                if (qqqqq==1&&*(list[i]+j)=='\\')
+                {
+                    is_file=0;
+                    break;
+                }
+                else if (qqqqq==1&&*(list[i]+j)!='\\')
+                {
+                    is_file=1;
+                    break;
+                }
+
+
+                if (*(list[i]+j)=='.')
+                {
+                    qqqqq=1;
+
+                }
+
+            }
+            if (is_file&&comp_word(list[i],all_branch,strlen(all_branch))!=0&&comp_word(list[i],head_branch,strlen(head_branch))!=0&&comp_word(list[i],current_branch,strlen(current_branch))!=0&&comp_word(list[i],previous_branch,strlen(previous_branch))!=0)
+            {
+                strcpy(names2[counter27],list[i]);
+                counter27++;
+            }
+
+        }
+
+        for (int i = 0; i < counter27; i++)
+        {
+            FILE* fool=fopen(names2[i],"r");
+            unsigned char* hash33=(unsigned char*) calloc(16,1);
+            fseek(fool,0,2);
+            int hy=0;
+            char cum;
+            int loz=ftell(fool);
+            while (hy<=4)
+            {
+                
+                fseek(fool,loz,0);
+                fscanf(fool,"%c",&cum);
+                if (cum=='\n')
+                {
+                    hy++;
+                }
+                loz--;
+            }            
+            
+            
+            for (int vv = 0; vv < 100; vv++)
+            {
+                fseek(fool,loz+2,0);
+                fscanf(fool,"%c",hash33+vv);
+                loz++;
+                if (*(hash33+vv)=='\n')
+                {
+                    break;
+                }
+                
+            }
+            
+            if (comp_word(hash33,id1,strlen(id1))==0)
+            {
+                copy(last_branch_loc1,names2[i],strlen(names2[i])-4);
+                break;
+            }
+            fclose(fool);
+        }
+    }
+    char* last_branch_loc2=(char*) calloc(256,1);
+
+    {
+        char* temp33=(char*) calloc(10000,1);
+        char* list[100];
+        for (int i = 0; i < 100; i++)
+        {
+            list[i]=(char*) calloc(256,1);
+        }
+        listFilesRecursively_with_depth(storage_dir,temp33,1);
+
+        turn_str_to_list(temp33,list);
+        int count33=0;
+        while (strcmp(list[count33],"")!=0)
+        {
+            count33++;
+        }
+
+        ///////////////////////////////////////////
+        char* all_branch=(char*) calloc(256,1);
+        char* head_branch=(char*) calloc(256,1);
+        char* current_branch=(char*) calloc(256,1);
+        char* previous_branch=(char*) calloc(256,1);
+        strcpy(previous_branch,storage_dir);
+        strcpy(all_branch,storage_dir);
+        strcpy(head_branch,storage_dir);
+        strcpy(current_branch,storage_dir);
+        strcat(previous_branch,"\\previous_branch.txt");
+        strcat(all_branch,"\\all_branch.txt");
+        strcat(head_branch,"\\head_branch.txt");
+        strcat(current_branch,"\\current_branch.txt");
+        char* names2[100];
+        char* message[100];
+        for (int i = 0; i < 100; i++)
+        {
+            message[i]=(char*) calloc(256,1);
+        }
+
+
+        for (int i = 0; i < 100; i++)
+        {
+            names2[i]=(char*) calloc(256,1);
+        }
+        int counter27=0;
+        for (int i = 0; i < count33; i++)
+        {
+            int siz=strlen(list[i]);
+            int qqqqq=0;
+            int is_file=0;
+            for (int j = siz-1; j >=0; j--)
+            {
+                if (qqqqq==1&&*(list[i]+j)=='\\')
+                {
+                    is_file=0;
+                    break;
+                }
+                else if (qqqqq==1&&*(list[i]+j)!='\\')
+                {
+                    is_file=1;
+                    break;
+                }
+
+
+                if (*(list[i]+j)=='.')
+                {
+                    qqqqq=1;
+
+                }
+
+            }
+            if (is_file&&comp_word(list[i],all_branch,strlen(all_branch))!=0&&comp_word(list[i],head_branch,strlen(head_branch))!=0&&comp_word(list[i],current_branch,strlen(current_branch))!=0&&comp_word(list[i],previous_branch,strlen(previous_branch))!=0)
+            {
+                strcpy(names2[counter27],list[i]);
+                counter27++;
+            }
+
+        }
+
+        for (int i = 0; i < counter27; i++)
+        {
+            FILE* fool=fopen(names2[i],"r");
+            unsigned char* hash33=(unsigned char*) calloc(16,1);
+            fseek(fool,0,2);
+            int hy=0;
+            char cum;
+            int loz=ftell(fool);
+            while (hy<=5)
+            {
+                fseek(fool,loz,0);
+                fscanf(fool,"%c",&cum);
+                if (cum=='\n')
+                {
+                    hy++;
+                }
+                loz--;
+            }            
+            
+            
+            for (int vv = 0; vv < 100; vv++)
+            {
+                fseek(fool,loz+2,0);
+                fscanf(fool,"%c",hash33+vv);
+                loz++;
+                if (*(hash33+vv)=='\n')
+                {
+                    break;
+                }
+                
+            }
+            
+            if (comp_word(hash33,id2,strlen(id2))==0)
+            {
+                copy(last_branch_loc2,names2[i],strlen(names2[i])-4);
+                break;
+            }
+
+        }
+    }
+
+    printf("%s\n%s\n",last_branch_loc1,last_branch_loc2);
+    ///////////////////////
+    char* locs1[100];
+    char* locs2[100];
+    char* f=(char*) calloc(10000,1);
+    char* z=(char*) calloc(10000,1);
+
+    for (int i = 0; i < 100; i++)
+    {
+        locs1[i]=(char*) calloc(256,1);
+        locs2[i]=(char*) calloc(256,1);
+    }
+    listFilesRecursively(last_branch_loc1,f);
+    listFilesRecursively(last_branch_loc2,z);
+    turn_str_to_list(f,locs1);
+    turn_str_to_list(z,locs2);
+    int count3=0;
+    while (strcmp(locs1[count3],"")!=0)
+    {
+        count3++;
+    }
+    int count4=0;
+    while (strcmp(locs2[count4],"")!=0)
+    {
+        count4++;
+    }
+    
+    for (int i = 0; i < count3; i++)
+    {
+        int siz=strlen(locs2[i]);
+            int qqqqq=0;
+            int is_file=0;
+            for (int j = siz-1; j >=0; j--)
+            {
+                if (qqqqq==1&&*(locs2[i]+j)=='\\')
+                {
+                    is_file=0;
+                    break;
+                }
+                else if (qqqqq==1&&*(locs2[i]+j)!='\\')
+                {
+                    is_file=1;
+                    break;
+                }
+
+
+                if (*(locs2[i]+j)=='.')
+                {
+                    qqqqq=1;
+
+                }
+
+            }
+            
+        for (int j = 0; j < count4; j++)
+        {
+            
+            if (is_file==1&&strcmp(locs1[i]+strlen(last_branch_loc1),locs2[j]+strlen(last_branch_loc1))==0)
+            {
+                diff(locs1[i],locs2[j]);
+                break;
+            }
+        }
+        
+        
+        
+    }
+    
+    
+    
+
+}
+
+
+int dis_to_base(char* commit_name,char* storage_dir){
+    char* prev=(char*) calloc(256,1);
+    char* prev_loc=(char*) calloc(256,1);
+    strcpy(prev_loc,storage_dir);
+    strcat(prev_loc,"\\");
+    strcat(prev_loc,commit_name);
+    strcat(prev_loc,".txt");
+    char* temp=(char*) calloc(256,1);
+    int n =0;
+    while (1)
+    {
+        FILE* file=fopen(prev_loc,"r");
+        fscanf(file,"%s",temp);
+        if (strcmp(temp,"NULL")==0)
+        {
+            break;
+        }
+        empty_str(prev_loc,256);
+        strcpy(prev_loc,storage_dir);
+        strcat(prev_loc,"\\");
+        strcat(prev_loc,temp);
+        strcat(prev_loc,".txt");
+        empty_str(temp,256);
+        fclose(file);
+        n++;
+    }
+    return n;
+    
+    
+    
+
+
+}
+
+int diff2(char* file_loc1,char* file_loc2){
+    
+    int leng =strlen(file_loc1);
+    int is_file=0;
+    int wwwwwwwwwwwwwwwwwwww=0;
+    for (int j = leng-1; j  >=0; j--)
+    {
+        if (wwwwwwwwwwwwwwwwwwww==1&&*(file_loc1+j)=='\\')
+        {
+            break;
+        }
+        else if (wwwwwwwwwwwwwwwwwwww==1&&*(file_loc1+j)!='\\')
+        {
+            is_file=1;
+        }
+        
+        if (*(file_loc1+j)=='.')
+        {
+            wwwwwwwwwwwwwwwwwwww=1;
+            
+        }
+    }
+
+    int leng2 =strlen(file_loc2);
+    int is_file2=0;
+    int wwwwwwwwwwwwwwwwwwww2=0;
+    for (int j = leng-1; j  >=0; j--)
+    {
+        if (wwwwwwwwwwwwwwwwwwww2==1&&*(file_loc2+j)=='\\')
+        {
+            break;
+        }
+        else if (wwwwwwwwwwwwwwwwwwww2==1&&*(file_loc2+j)!='\\')
+        {
+            is_file2=1;
+        }
+        
+        if (*(file_loc2+j)=='.')
+        {
+            wwwwwwwwwwwwwwwwwwww2=1;
+            
+        }
+    }
+    if (is_file==0||is_file2==0)
+    {
+        printf("not file\n");
+        return -1;
+    }
+    
+    FILE* f1=fopen(file_loc1,"r+");
+    FILE* f2=fopen(file_loc2,"r+");
+    char* file1=(char*) calloc(10000,1);
+    char* file2=(char*) calloc(10000,1);
+    char* bussy1=(char*) calloc(10000,1);
+    char* bussy2=(char*) calloc(10000,1);
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(f1,i,0);
+        fscanf(f1,"%c",bussy1+i);
+    }
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(f2,i,0);
+        fscanf(f2,"%c",bussy2+i);
+    }
+    fseek(f1,0,0);
+    fseek(f2,0,0);
+    read_file_without_nullspace(file1,f1);
+    read_file_without_nullspace(file2,f2);
+    char* lines1[30];
+    char* lines2[30];
+    char* gyalines1[100];
+    char* gyalines2[100];
+    for (int i = 0; i < 30; i++)
+    {
+        lines1[i]=(char*) calloc(10000,1);
+        lines2[i]=(char*) calloc(10000,1);
+    }
+    for (int i = 0; i < 100; i++)
+    {
+        gyalines1[i]=(char*) calloc(1000,1);
+        gyalines2[i]=(char*) calloc(1000,1);
+    }
+
+    turn_line_to_list(file1,lines1);
+    turn_line_to_list(file2,lines2);
+
+    turn_str_to_list2(bussy1,gyalines1);
+    turn_str_to_list2(bussy2,gyalines2);
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (strcmp(lines1[i],lines2[i])!=0)
+        {
+            int line1=0;
+            int line2=0;
+            for (int j = 0; j < 100; j++)
+            {
+                if (strcmp(lines1[i],gyalines1[j])==0)
+                {
+                   line1=j/2-2;
+                   break;
+                }
+                
+            }
+            for (int j = 0; j < 100; j++)
+            {
+                if (strcmp(lines2[i],gyalines2[j])==0)
+                {
+                   line2=j/2-2;
+                   break;
+                }
+                
+            }
+            printf(KMAG"<<<<<<<<\n"RESET);
+            printf(KBLU"%s-%d\n"RESET,file_loc1,line1);
+            
+            
+            printf(KRED"%s\n"RESET,lines1[i]);
+            printf(KBLU"%s-%d\n"RESET,file_loc2,i+1);
+            printf(KRED"%s\n"RESET,lines2[i]);
+            printf(KMAG">>>>>>>>\n\n"RESET);
+        }
+    }
+    return 0;
+}
+
+
+void tree(char* storage_dir){
+    char* temp=(char*) calloc(10000,1);
+    char* list[100];
+    for (int i = 0; i < 100; i++)
+    {
+        list[i]=(char*) calloc(256,1);
+    }
+    listFilesRecursively_with_depth(storage_dir,temp,1);
+    
+    turn_str_to_list(temp,list);
+    int count=0;
+    while (strcmp(list[count],"")!=0)
+    {
+        count++;
+    }
+    ////////////////////////////////////////////////////
+    char* show_all_branches=(char*) calloc(256,1);
+    strcpy(show_all_branches,storage_dir);
+    strcat(show_all_branches,"//all_branch.txt");
+    char* se=(char*) calloc(10000,1);
+    FILE* file=fopen(show_all_branches,"r");
+    char* w[10];
+    for (int i = 0; i < 10; i++)
+    {
+        w[i]=(char*) calloc(256,1);
+    }
+    for (int i = 0; i < 10000; i++)
+    {
+        fseek(file,i,0);
+        fscanf(file,"%c",se+i);
+    }
+    turn_str_to_list(se,w);
+    int count33=0;
+    while (strcmp(w[count33],"")!=0)
+    {
+        count33++;
+    }
+    char* all_branch=(char*) calloc(256,1);
+    char* head_branch=(char*) calloc(256,1);
+    char* current_branch=(char*) calloc(256,1);
+    char* previous_branch=(char*) calloc(256,1);
+    strcpy(previous_branch,storage_dir);
+    strcpy(all_branch,storage_dir);
+    strcpy(head_branch,storage_dir);
+    strcpy(current_branch,storage_dir);
+    strcat(previous_branch,"\\previous_branch.txt");
+    strcat(all_branch,"\\all_branch.txt");
+    strcat(head_branch,"\\head_branch.txt");
+    strcat(current_branch,"\\current_branch.txt");
+    char* names2[100];
+    int* a[100];
+    for (int i = 0; i < 100; i++)
+    {
+        a[i]=(int*) calloc(4,6);
+    }
+    
+    for (int i = 0; i < 100; i++)
+    {
+        names2[i]=(char*) calloc(256,1);
+    }
+    int counter2=0;
+    for (int i = 0; i < count; i++)
+    {
+        int siz=strlen(list[i]);
+        int qqqqq=0;
+        int is_file=0;
+        for (int j = siz-1; j >=0; j--)
+        {
+            if (qqqqq==1&&*(list[i]+j)=='\\')
+            {
+                is_file=0;
+                break;
+            }
+            else if (qqqqq==1&&*(list[i]+j)!='\\')
+            {
+                is_file=1;
+                break;
+            }
+
+
+            if (*(list[i]+j)=='.')
+            {
+                qqqqq=1;
+
+            }
+
+        }
+        if (is_file&&comp_word(list[i],all_branch,strlen(all_branch))!=0&&comp_word(list[i],head_branch,strlen(head_branch))!=0&&comp_word(list[i],current_branch,strlen(current_branch))!=0&&comp_word(list[i],previous_branch,strlen(previous_branch))!=0)
+        {
+            strcpy(names2[counter2],list[i]);
+            counter2++;
+        }
+        
+    }
+    
+
+    //w is all branches name
+    for (int i = 0; i < counter2; i++)
+    {
+        /* code */
+    }
+    
+
+    char* pos_in_branch=(char*) calloc(256,1);
+    strcpy(pos_in_branch,"NULL");
+    FILE* branch_file;
+    char* wirtten=(char*) calloc(256,1);
+    char* output=(char*) calloc(1000,1);
+    int n=0;
+    for (int i = 0; i < counter2; i++)
+    {
+        branch_file=fopen(names2[i],"r");
+        fscanf(branch_file,"%s",wirtten);
+        if (strcmp(wirtten,pos_in_branch)==0)
+        {
+            /* code */
+        }
+        
+    }
+    
+}
+
+void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* shiz_dir){
+    if (number_files(stage_dir)!=0)
+    {
+        printf("uncommited changes\n");
+        return;
+    }
+    
+    
+    char* last_branch_loc=(char*) calloc(256,1);
+    char* test=(char*) calloc(256,1);
+    strcpy(test,storage_dir);
+    strcat(test,"\\");
+    strcat(test,branch_1);
+    strcat(test,"_");
+    int lengt=strlen(test);
+    FILE* test_file;
+    int num=0;
+    do
+    {
+        sprintf(test+lengt,"%d",num);
+        strcat(test,".txt");
+        test_file=fopen(test,"r");
+        num++;
+    } while (test_file!=NULL);
+    strcpy(last_branch_loc,storage_dir);
+    strcat(last_branch_loc,"\\");
+    strcat(last_branch_loc,branch_1);
+    strcat(last_branch_loc,"_");
+    int r=strlen(last_branch_loc);
+    sprintf(last_branch_loc+r,"%d",(num-2));
+    
+    ///////////////
+    
+    char* last_branch_loc2=(char*) calloc(256,1);
+    char* test2=(char*) calloc(256,1);
+    strcpy(test2,storage_dir);
+    strcat(test2,"\\");
+    strcat(test2,branch_1);
+    strcat(test2,"_");
+    lengt=strlen(test2);
+    FILE* test_file2;
+    int num2=0;
+    do
+    {
+        sprintf(test2+lengt,"%d",num2);
+        strcat(test2,".txt");
+        test_file2=fopen(test2,"r");
+        num2++;
+    } while (test_file2!=NULL);
+    strcpy(last_branch_loc2,storage_dir);
+    strcat(last_branch_loc2,"\\");
+    strcat(last_branch_loc2,branch_2);
+    strcat(last_branch_loc2,"_");
+    r=strlen(last_branch_loc2);
+    sprintf(last_branch_loc2+r,"%d",(num2-2));
+    
+    
+    char* files1[100];
+    char* files2[100];
+    char* faa1=(char*) calloc(10000,1);
+    char* faa2=(char*) calloc(10000,1);
+    for (int i = 0; i < 100; i++)
+    {
+        files1[i]=(char*) calloc(256,1);
+        files2[i]=(char*) calloc(256,1);
+    }
+    listFilesRecursively(last_branch_loc,faa1);
+    listFilesRecursively(last_branch_loc2,faa2);
+    turn_str_to_list(faa1,files1);
+    turn_str_to_list(faa2,files2);
+    int did=1;
+    for (int i = 0; i < number_files(last_branch_loc2); i++)
+    {
+        
+        for (int j = 0; j< number_files(last_branch_loc); j++)
+        {
+            if (strcmp(files2[i]+strlen(test2)-4,files1[j]+strlen(test)-4)==0)
+            {
+                did =diff2(files2[i],files1[j]);
+                break;
+            }
+        }   
+        
+        
+    }
+    if (did==1)
+    {
+        send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc,stage_dir);
+        send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc2,stage_dir);
+    }
+    
+    
+
+}
+
+
+
+
+
+
 
 

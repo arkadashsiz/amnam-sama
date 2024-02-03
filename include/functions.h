@@ -1,6 +1,7 @@
 
 #ifndef _FUNCTIONS_H
 #define _FUNCTIONS_H
+
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,15 @@
 #include <conio.h>
 #include <time.h>
 #include <direct.h>
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+#define RESET   "\033[0m"
 //compares two chars
 int comp(char big, char small);
 int comp_word(char *A,char *B,int length);
@@ -89,7 +99,16 @@ void logs_branch(char* branch_name,char* storage_dir);
 void logs_author(char* author_name,char* storage_dir);
 void logs_time(int mode,char* time,char* storage_dir);
 void logs_word(char* word,char* storage_dir);
-
+void diff(char* file_loc1,char* file_loc2);
+void read_file_without_nullspace(char* out,FILE* file);
+int line_size(char *A,int start_pos);
+int line_pos(char *A,int start_pos,int amount);
+void turn_line_to_list(char* string,char* list[]);
+void turn_str_to_list2(char* string,char* list[]);
+void tree(char* storage_dir);
+int dis_to_base(char* commit_name,char* storage_dir);
+void diff_commits(char* id1,char* id2,char* storage_dir);
+void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* shiz_dir);
 void revert_with_out_commit(char* pos_of_wanted_commit_to_revert,char* commit_id,char* storage_dir,char* shiz_dir);
 
 #endif

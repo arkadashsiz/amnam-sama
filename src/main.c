@@ -73,7 +73,7 @@ int main(int argc,char *argv[]){
         printf("you stupid little shit\n");
     }
     
-    if (argc==2)
+    else if (argc==2)
     {
         if (strcmp(argv[1],"init")==0)
         {
@@ -254,6 +254,9 @@ int main(int argc,char *argv[]){
             
             send_rec_to_shiz(strlen(pos_of_wanted_commit_to_revert),pos_of_wanted_commit_to_revert,shiz_dir);
             send_to_storage(strlen(shiz_dir),strlen(shiz_dir),shiz_dir,stage_dir,current_dir);
+            
+            
+            
             char w[24]="this is reverted commit";
             commit(previous_branch,number_files(stage_dir),user_name,current_branch,w,stage_dir,storage_dir,shiz_dir);
             FILE* egg=fopen(previous_file_location,"r+");
@@ -273,6 +276,10 @@ int main(int argc,char *argv[]){
         {
             empty_shiz_dir(shiz_dir);
             empty_shiz_dir(shiz_dir);
+        }
+        else if (strcmp(argv[1],"dis")==0)
+        {
+            printf("dis is:%d\n",dis_to_base(argv[2],storage_dir));
         }
 
 
@@ -372,7 +379,8 @@ int main(int argc,char *argv[]){
         else if (strcmp(argv[1],"revert")==0&&strcmp(argv[2],"-n")==0)
         {
             char* pos_of_wanted_commit_to_revert=(char*) calloc(256,1);
-            revert_with_out_commit(pos_of_wanted_commit_to_revert,argv[2],storage_dir,shiz_dir);
+            revert_with_out_commit(pos_of_wanted_commit_to_revert,argv[3],storage_dir,shiz_dir);
+            send_rec_to_shiz(strlen(pos_of_wanted_commit_to_revert),pos_of_wanted_commit_to_revert,shiz_dir);
             send_to_storage(strlen(shiz_dir),strlen(shiz_dir),shiz_dir,stage_dir,current_dir);
     
 
@@ -394,6 +402,20 @@ int main(int argc,char *argv[]){
         {
             config_glob_alias(argc,argv);
             //currently it does not return an error for non functioning commands
+        }
+        else if (strcmp("diff",argv[1])==0&&strcmp("-f",argv[2])==0)
+        {
+            diff(argv[3],argv[4]);
+        }
+        else if (strcmp("diff",argv[1])==0&&strcmp("-c",argv[2])==0)
+        {
+            
+            diff_commits(argv[3],argv[4],storage_dir);
+        }
+        else if (strcmp("merge",argv[1])==0&&strcmp("-b",argv[2])==0)
+        {
+            
+            merge(argv[3],argv[4],storage_dir,stage_dir,shiz_dir);
         }
     }
     else if (argc==6)
