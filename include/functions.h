@@ -108,7 +108,7 @@ void turn_str_to_list2(char* string,char* list[]);
 void tree(char* storage_dir);
 int dis_to_base(char* commit_name,char* storage_dir);
 void diff_commits(char* id1,char* id2,char* storage_dir);
-void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* shiz_dir);
+int merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* shiz_dir);
 void revert_with_out_commit(char* pos_of_wanted_commit_to_revert,char* commit_id,char* storage_dir,char* shiz_dir);
 void tag(char* storage_dir,char* message,char* tag_name,char* commit_id,char* auth_name,char* email);
 

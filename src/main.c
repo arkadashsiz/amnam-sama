@@ -97,6 +97,7 @@ int main(int argc,char *argv[]){
                 create_local_shiz_dir(".\\.shiz\\stage");
                 create_local_shiz_dir(".\\.shiz\\storage");
                 create_local_shiz_dir(".\\.shiz\\storage\\tag");
+                SetFileAttributes(".\\.shiz", FILE_ATTRIBUTE_HIDDEN);
                 FILE* filenum=fopen(".\\.shiz\\storage\\tag\\num.txt","w+");
                 FILE* file123=fopen(".\\.shiz\\storage\\all_branch.txt","w+");
                 FILE* file22=fopen(".\\.shiz\\storage\\current_branch.txt","w+");
@@ -340,7 +341,7 @@ int main(int argc,char *argv[]){
                 printf(".shiz file does not exist\n");
             }
             else{
-            check_out(argv[2],storage_dir,shiz_dir);\
+            check_out(argv[2],storage_dir,shiz_dir);
             }
         }
         else if (strcmp(argv[1],"checkout")==0&&strcmp(argv[2],"HEAD")==0)
@@ -700,7 +701,36 @@ int main(int argc,char *argv[]){
                 printf(".shiz file does not exist\n");
             }
             else{
-            merge(argv[3],argv[4],storage_dir,stage_dir,shiz_dir);
+                int ret=merge(argv[3],argv[4],storage_dir,stage_dir,shiz_dir);
+                if (ret==0)
+                {
+                    check_out(argv[3],storage_dir,shiz_dir);
+                    commit(previous_branch,number_files(stage_dir),user_name,current_branch,"Merge",stage_dir,storage_dir,shiz_dir);
+                    FILE* egg=fopen(previous_file_location,"r+");
+                    fprintf(egg,"%s",previous_branch);
+                    FILE* temp33=fopen(current_branch_dir,"r+");
+                    fprintf(temp33,"%s",current_branch);
+                    fclose(temp33);
+                    fclose(egg);
+                    empty_dir(stage_dir);
+                    empty_dir(stage_dir);
+                    empty_dir(stage_dir);
+                    empty_dir(stage_dir);
+                }
+                else{
+                    check_out(argv[4],storage_dir,shiz_dir);
+                    commit(previous_branch,number_files(stage_dir),user_name,current_branch,"Merge",stage_dir,storage_dir,shiz_dir);
+                    FILE* egg=fopen(previous_file_location,"r+");
+                    fprintf(egg,"%s",previous_branch);
+                    FILE* temp33=fopen(current_branch_dir,"r+");
+                    fprintf(temp33,"%s",current_branch);
+                    fclose(temp33);
+                    fclose(egg);
+                    empty_dir(stage_dir);
+                    empty_dir(stage_dir);
+                    empty_dir(stage_dir);
+                    empty_dir(stage_dir);
+                }
             }
         }
     }
@@ -741,9 +771,17 @@ int main(int argc,char *argv[]){
         {
             char* coste=(char*) calloc(256,1);
             strcpy(coste,storage_dir);
-            strcat(coste,"previous_branch.txt");
-            FILE* loste=fopen(coste,"r");
+            strcat(coste,"\\previous_branch.txt");
+            FILE* poste=fopen(coste,"r");
             char* hash33=(char*) calloc(16,1);
+            char* main_loc=(char*) calloc(256,1);
+            strcpy(main_loc,storage_dir);
+            strcat(main_loc,"\\");
+            char* tyty=(char*) calloc(256,1);
+            fscanf(poste,"%s",tyty);
+            strcat(main_loc,tyty);
+            strcat(main_loc,".txt");
+            FILE* loste=fopen(main_loc,"r");    
             fseek(loste,0,2);
             int hy=0;
             char cum;
@@ -772,6 +810,9 @@ int main(int argc,char *argv[]){
                 }
                 
             }
+            
+            printf("%s",hash33);
+            printf("%s\n",email);
             tag(storage_dir,argv[5],argv[3],hash33,user_name,email);
 
         }
@@ -790,6 +831,7 @@ int main(int argc,char *argv[]){
 
         }
     }
+    
     
     if (argc>1)
     {

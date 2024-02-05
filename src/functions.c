@@ -3927,11 +3927,12 @@ int diff2(char* file_loc1,char* file_loc2){
 
     turn_str_to_list2(bussy1,gyalines1);
     turn_str_to_list2(bussy2,gyalines2);
-
+    int ret_val=0;
     for (int i = 0; i < 10; i++)
     {
         if (strcmp(lines1[i],lines2[i])!=0)
         {
+            ret_val=23;
             int line1=0;
             int line2=0;
             for (int j = 0; j < 100; j++)
@@ -3962,7 +3963,7 @@ int diff2(char* file_loc1,char* file_loc2){
             printf(KMAG">>>>>>>>\n\n"RESET);
         }
     }
-    return 0;
+    return ret_val;
 }
 
 
@@ -4088,14 +4089,51 @@ void tree(char* storage_dir){
     
 }
 
-void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* shiz_dir){
+int merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* shiz_dir){
     if (number_files(stage_dir)!=0)
     {
         printf("uncommited changes\n");
-        return;
+        return -1;
+    }
+    char* all_branch_loc=(char*) calloc(256,1);
+    strcpy(all_branch_loc,storage_dir);
+    strcat(all_branch_loc,"\\all_branch.txt");
+    FILE* all_branches=fopen(all_branch_loc,"r+");
+    char* totnotadick=(char*) calloc(1000,1);
+    for (int i = 0; i < 1000; i++)
+    {
+        fseek(all_branches,i,0);
+        fscanf(all_branches,"%c",totnotadick+i);
+    }
+    char* alldontknow[20];
+    for (int i = 0; i < 20; i++)
+    {
+        alldontknow[i]=(char*) calloc(256,1);
+    }
+    turn_str_to_list(totnotadick,alldontknow);
+    int cosine=0;
+
+    while (strcmp(alldontknow[cosine],"")!=0)
+    {
+        cosine++;
+    }
+    int order=0;
+    for (int i = 0; i < cosine; i++)
+    {
+        if (strcmp(branch_1,alldontknow[i])==0)
+        {
+            break;
+        }
+        if (strcmp(branch_2,alldontknow[i])==0)
+        {
+            order=1;
+            break;
+        }
     }
     
     
+
+
     char* last_branch_loc=(char*) calloc(256,1);
     char* test=(char*) calloc(256,1);
     strcpy(test,storage_dir);
@@ -4142,7 +4180,7 @@ void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char*
     strcat(last_branch_loc2,branch_2);
     strcat(last_branch_loc2,"_");
     r=strlen(last_branch_loc2);
-    sprintf(last_branch_loc2+r,"%d",(num2-2));
+    sprintf(last_branch_loc2+r,"%d",(num2+1));
     
     
     char* files1[100];
@@ -4173,13 +4211,16 @@ void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char*
         
         
     }
-    if (did==1)
+    if (did==1||did==0)
     {
+
         send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc,stage_dir);
-        send_rec_to_shiz(strlen(last_branch_loc),last_branch_loc2,stage_dir);
+        send_rec_to_shiz(strlen(last_branch_loc2),last_branch_loc2,stage_dir);
+        
+        
     }
     
-    
+    return order;
 
 }
 
@@ -4196,6 +4237,7 @@ void tag(char* storage_dir,char* message,char* tag_name,char* commit_id,char* au
     }
     turn_str_to_list(sex_loc,tags_loc);
     int count=0;
+
     while (strcmp(tags_loc[count],"")!=0)
     {
         count++;
@@ -4204,7 +4246,7 @@ void tag(char* storage_dir,char* message,char* tag_name,char* commit_id,char* au
     int possible=1;
     for (int i = 0; i < count; i++)
     {
-        FILE* fole=fopen(tags_loc,"r");
+        FILE* fole=fopen(tags_loc[i],"r");
         char* name=(char*) calloc(256,1);
         fscanf(fole,"%s\n",name);
         if (strcmp(name,tag_name)==0)
@@ -4212,7 +4254,7 @@ void tag(char* storage_dir,char* message,char* tag_name,char* commit_id,char* au
             possible=0;
             break;
         }
-        
+        fclose(fole);
     }
     
     if (possible)
@@ -4221,31 +4263,33 @@ void tag(char* storage_dir,char* message,char* tag_name,char* commit_id,char* au
         struct tm time = *localtime(&t);
         strcat(gay,"\\");
         strcat(gay,"num.txt");
-        FILE* num=fopen(gay,"r");
+        FILE* num=fopen(gay,"r+");
         char numssss;
         fscanf(num,"%c",&numssss);
-        fprintf(num,"%c",numssss+1);
+        char tesrix=(char)((int)numssss+1);
+        fseek(num,0,0);
+        fprintf(num,"%c",tesrix);
         fclose(num);
         empty_str(gay,256);
         strcpy(gay,storage_dir);
         strcat(gay,"\\tag");
         strcat(gay,"\\");
-        strcat(gay,numssss);
+        char* sss=(char*) calloc(1,1);
+        *sss=numssss;
+        strcat(gay,sss);
         strcat(gay,".txt");
         FILE* re=fopen(gay,"w+");
-        fprintf(re,"%s",tag_name);
+        fprintf(re,"%s\n",tag_name);
         fseek(re,0,2);
         fprintf(re,"%d-%02d-%02d %02d:%02d:%02d\n", time.tm_year + 1900, time.tm_mon + 1, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
         fseek(re,0,2);
         fprintf(re,"%s",commit_id);
         fseek(re,0,2);
-        fprintf(re,"%s",auth_name);
+        fprintf(re,"%s\n",auth_name);
         fseek(re,0,2);
-        fprintf(re,"%s",email);
+        fprintf(re,"%s\n",email);
         fseek(re,0,2);
-        fprintf(re,"%s",auth_name);
-        fseek(re,0,2);
-        fprintf(re,"%s",message);
+        fprintf(re,"%s\n",message);
     }
     else{
 
