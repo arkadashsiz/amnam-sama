@@ -503,14 +503,14 @@ int config_glob_name(int argc,char *argv[]){
     FILE* file;
     if (check==0)
     {
-        file=fopen("c:\\shiz\\name.txt","r+");
+        file=fopen("c:\\shiz\\name.txt","w+");
     }
     else{
         file=fopen("c:\\shiz\\name.txt","w+");
     }
     
     fseek(file,0,0);
-    fprintf(file,"username: %s \n",argv[4]);
+    fprintf(file,"name: %s \n",argv[4]);
     return 0;
 }
 int config_glob_email(int argc,char *argv[]){
@@ -518,7 +518,7 @@ int config_glob_email(int argc,char *argv[]){
     FILE* file;
     if (check==0)
     {
-        file=fopen("c:\\shiz\\email.txt","r+");
+        file=fopen("c:\\shiz\\email.txt","w+");
     }
     else{
         file=fopen("c:\\shiz\\email.txt","w+");
@@ -533,7 +533,7 @@ int config_glob_alias(int argc,char *argv[]){
     FILE* file;
     if (check==0)
     {
-        file=fopen("c:\\shiz\\alias.txt","r+");
+        file=fopen("c:\\shiz\\alias.txt","w+");
     }
     else{
         file=fopen("c:\\shiz\\alias.txt","w+");
@@ -706,20 +706,24 @@ int comp_file(FILE* file1,FILE* file2){
 
 }
 
-void hash_file(FILE* file,unsigned char *out){
-    unsigned char md5_digest[MD5_DIGEST_LENGTH];
-    unsigned char* data=(unsigned char*) calloc(10000,1);
+void hash_file(FILE* file,char* out){
+    char md5_digest[MD5_DIGEST_LENGTH];
+    char* data=( char*) calloc(10000,1);
     for (int i = 0; i < 10000; i++)
     {
         fseek(file,i,0);
         fscanf(file,"%c",data+i);
     }
     MD5(data,10000,md5_digest);
+    char* cum_shit_piss=(char*) calloc(4000,1);
     for (int i = 0; i < 16; i++)
     {
-        *(out+i)=md5_digest[i];
+        sprintf(cum_shit_piss+i,"%x",md5_digest[i]);
     }
-    
+    for (int i = 0; i < 16; i++)
+    {
+        *(out+i)=*(cum_shit_piss+i);    
+    }
 
 }
 
@@ -1857,7 +1861,7 @@ void commit(char* previous_branch,int number_files,char* user_name,char* current
     ///////////////////////
     time_t t = time(NULL);
     struct tm time = *localtime(&t);
-    unsigned char* hash_id=(unsigned char*) calloc(16,1);
+    char* hash_id=( char*) calloc(16,1);
     char* commit_dir=(char*) calloc(256,1);
     strcpy(commit_dir,storage_dir);
     strcat(commit_dir,"\\");
@@ -1873,7 +1877,7 @@ void commit(char* previous_branch,int number_files,char* user_name,char* current
     
 
 
-
+    ;
     fseek(data_file,0,2);
     fprintf(data_file,"%d-%02d-%02d %02d:%02d:%02d\n", time.tm_year + 1900, time.tm_mon + 1, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
     fseek(data_file,0,2);
@@ -3222,13 +3226,6 @@ void revert_with_out_commit(char* pos_of_wanted_commit_to_revert,char* commit_id
 }
 
 
-
-
-
-
-
-
-
 void find_line(char* out,FILE* file, int line){
 
     int x=0;
@@ -4186,7 +4183,76 @@ void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char*
 
 }
 
+void tag(char* storage_dir,char* message,char* tag_name,char* commit_id,char* auth_name,char* email){
+    char* sex_loc=(char*) calloc(10000,1);
+    char* gay=(char*) calloc(256,1);
+    strcpy(gay,storage_dir);
+    strcat(gay,"\\tag");
+    listFilesRecursively(gay,sex_loc);
+    char* tags_loc[20];
+    for (int i = 0; i < 20; i++)
+    {
+        tags_loc[i]=(char*) calloc(256,1);
+    }
+    turn_str_to_list(sex_loc,tags_loc);
+    int count=0;
+    while (strcmp(tags_loc[count],"")!=0)
+    {
+        count++;
+    }
+    ///////////////////////////////////////
+    int possible=1;
+    for (int i = 0; i < count; i++)
+    {
+        FILE* fole=fopen(tags_loc,"r");
+        char* name=(char*) calloc(256,1);
+        fscanf(fole,"%s\n",name);
+        if (strcmp(name,tag_name)==0)
+        {
+            possible=0;
+            break;
+        }
+        
+    }
+    
+    if (possible)
+    {
+        time_t t = time(NULL);
+        struct tm time = *localtime(&t);
+        strcat(gay,"\\");
+        strcat(gay,"num.txt");
+        FILE* num=fopen(gay,"r");
+        char numssss;
+        fscanf(num,"%c",&numssss);
+        fprintf(num,"%c",numssss+1);
+        fclose(num);
+        empty_str(gay,256);
+        strcpy(gay,storage_dir);
+        strcat(gay,"\\tag");
+        strcat(gay,"\\");
+        strcat(gay,numssss);
+        strcat(gay,".txt");
+        FILE* re=fopen(gay,"w+");
+        fprintf(re,"%s",tag_name);
+        fseek(re,0,2);
+        fprintf(re,"%d-%02d-%02d %02d:%02d:%02d\n", time.tm_year + 1900, time.tm_mon + 1, time.tm_mday, time.tm_hour, time.tm_min, time.tm_sec);
+        fseek(re,0,2);
+        fprintf(re,"%s",commit_id);
+        fseek(re,0,2);
+        fprintf(re,"%s",auth_name);
+        fseek(re,0,2);
+        fprintf(re,"%s",email);
+        fseek(re,0,2);
+        fprintf(re,"%s",auth_name);
+        fseek(re,0,2);
+        fprintf(re,"%s",message);
+    }
+    else{
 
+        printf("don't you dare make a tag with the same name\n");
+    }
+
+}
 
 
 

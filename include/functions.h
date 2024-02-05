@@ -54,7 +54,7 @@ int config_email(int argc,char *argv[],char* current_dir);
 
 int comp_file(FILE* file1,FILE* file2);
 
-void hash_file(FILE* file,unsigned char *out);
+void hash_file(FILE* file,char* out);
 int send_file_to_stage(char* current_dir,char* file_loc);
 int all_file_dirs(char* current_loc,char* file_dir_list[]);
 int send_rec_to_stage(int size_of_shiz_dir,int size_of_cuurent_dir_string,char* current_dir,char* stage_dir);
@@ -110,6 +110,7 @@ int dis_to_base(char* commit_name,char* storage_dir);
 void diff_commits(char* id1,char* id2,char* storage_dir);
 void merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* shiz_dir);
 void revert_with_out_commit(char* pos_of_wanted_commit_to_revert,char* commit_id,char* storage_dir,char* shiz_dir);
+void tag(char* storage_dir,char* message,char* tag_name,char* commit_id,char* auth_name,char* email);
 
 #endif
 
