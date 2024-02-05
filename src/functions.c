@@ -4062,30 +4062,109 @@ void tree(char* storage_dir){
         
     }
     
-
-    //w is all branches name
-    for (int i = 0; i < counter2; i++)
+    int start;
+    int finish=-1;
+    char* side=(char*) calloc(256,1);
+    strcpy(side,storage_dir);
+    strcat(side,"\\");
+    strcat(side,w[count33-1]);
+    strcat(side,"_0.txt");
+    FILE* idontknowman=fopen(side,"r+");
+    char* what=(char*) calloc(256,1);
+    fscanf(idontknowman,"%s",what);
+    int this_is_bad;
+    for (int i = 0; i < 50; i++)
     {
-        /* code */
-    }
-    
-
-    char* pos_in_branch=(char*) calloc(256,1);
-    strcpy(pos_in_branch,"NULL");
-    FILE* branch_file;
-    char* wirtten=(char*) calloc(256,1);
-    char* output=(char*) calloc(1000,1);
-    int n=0;
-    for (int i = 0; i < counter2; i++)
-    {
-        branch_file=fopen(names2[i],"r");
-        fscanf(branch_file,"%s",wirtten);
-        if (strcmp(wirtten,pos_in_branch)==0)
+        if (*(what+i)=='_')
         {
-            /* code */
+            this_is_bad=i;
+            break;
         }
         
     }
+    start=decipher(strlen(what)-this_is_bad,what+this_is_bad+1);
+    start++;
+    int tot=0;
+    int s_num=0;
+    int m_num=0;
+    for (int i = 0; i < counter2; i++)
+    {
+        if (i==0)
+        {
+            printf("NULL\n");
+        }
+        
+        char* out_main=(char*) calloc(256,1);
+        char* out_side=(char*) calloc(256,1);
+        strcpy(out_main,"main_");
+        strcpy(out_side,"side_");
+        if (tot>counter2)
+        {
+            break;
+        }
+        
+        if (i==finish)
+        {
+            sprintf(out_main+strlen(out_main),"%d",m_num);
+            m_num++;
+            sprintf(out_side+strlen(out_side),"%d",s_num);
+            s_num++;
+            printf("|\n|\n%s--%s\n",out_main,out_side);
+            tot+=2;
+        }
+        else if (i==start)
+        {
+            sprintf(out_main+strlen(out_main),"%d",m_num);
+            m_num++;
+            sprintf(out_side+strlen(out_side),"%d",s_num);
+            s_num++;
+            printf("|\n|\n%s--%s\n",out_main,out_side);
+            tot+=2;
+        }
+        else if (i>start)
+        {
+            if (finish==-1)
+            {
+                sprintf(out_main+strlen(out_main),"%d",m_num);
+                m_num++;
+                sprintf(out_side+strlen(out_side),"%d",s_num);
+                s_num++;
+                printf("|       |\n|       |\n%s  %s\n",out_main,out_side);
+                tot+=2;
+            }
+            else{
+                if (i<finish)
+                {
+                    sprintf(out_main+strlen(out_main),"%d",m_num);
+                    m_num++;
+                    sprintf(out_side+strlen(out_side),"%d",s_num);
+                    s_num++;
+                    printf("|       |\n|       |\n%s  %s\n",out_main,out_side);
+                    tot+=2;
+                }
+                
+            }
+            
+        }
+        else if (i==0)
+        {
+            sprintf(out_main+strlen(out_main),"%d",m_num);
+            m_num++;
+            printf("|\n|\n%s\n",out_main);
+            tot++;
+        }
+        
+        else{
+            sprintf(out_main+strlen(out_main),"%d",m_num);
+            m_num++;
+            printf("|\n|\n%s\n",out_main);
+            tot++;
+        }
+        empty_str(out_main,256);
+        empty_str(out_side,256);
+    }
+    
+    
     
 }
 
