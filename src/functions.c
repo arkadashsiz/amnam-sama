@@ -2691,11 +2691,11 @@ void logs_word(char* word,char* storage_dir){
     
     FILE* data_file;
     char* MUDA;
-    for (int i = 0; i < counter2; i++)
-    {
-        printf("%s\n",names2[i]);
-    }
-    printf("\n\n\n");
+    // for (int i = 0; i < counter2; i++)
+    // {
+    //     printf("%s\n",names2[i]);
+    // }
+    // printf("\n\n\n");
     for (int i = 0; i < counter2; i++)
     {
        data_file=fopen(names2[i],"r+");
@@ -2707,12 +2707,12 @@ void logs_word(char* word,char* storage_dir){
        
     }
     
-    sort_file_by_date(names2,a,counter2);
-    for (int i = 0; i < counter2; i++)
-    {
-        printf("%s\n",names2[i]);
-    }
-    printf("\n\n\n");
+    // sort_file_by_date(names2,a,counter2);
+    // for (int i = 0; i < counter2; i++)
+    // {
+    //     printf("%s\n",names2[i]);
+    // }
+    // printf("\n\n\n");
     for (int i = 0; i < counter2; i++)
     {
        data_file=fopen(names2[i],"r+");
@@ -4283,6 +4283,7 @@ int merge(char* branch_1,char* branch_2,char* storage_dir,char* stage_dir,char* 
         {
             if (strcmp(files2[i]+strlen(test2)-4,files1[j]+strlen(test)-4)==0)
             {
+                
                 did =diff2(files2[i],files1[j]);
                 break;
             }

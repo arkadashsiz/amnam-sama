@@ -203,18 +203,21 @@ int main(int argc,char *argv[]){
         }
         else if (strcmp(argv[1],"tag")==0)
         {
+             
             char* qwwqq=(char*) calloc(256,1);
             strcpy(qwwqq,storage_dir);
             strcat(qwwqq,"\\tag");
             char* alsw=(char*) calloc(10000,1);
-            char* all_tags[20];
-            for (int i = 0; i < 20; i++)
+            char* all_tags[100];
+            for (int i = 0; i < 100; i++)
             {
-                all_tags[20]=(char*) calloc(256,1);
+                all_tags[i]=(char*) calloc(256,1);
             }
             listFilesRecursively(qwwqq,alsw);
             turn_str_to_list(alsw,all_tags);
+
             int count=0;
+           
             while (strcmp(all_tags[count],"")!=0)
             {
                 count++;
@@ -224,6 +227,7 @@ int main(int argc,char *argv[]){
             strcat(num_loc_list_69,"\\tag\\num.txt");
             for (int i = 0; i < count; i++)
             {
+                
                 if (strcmp(num_loc_list_69,all_tags[i])!=0)
                 {
                     FILE* fofoisbad=fopen(all_tags[i],"r");
@@ -275,6 +279,18 @@ int main(int argc,char *argv[]){
             printf("join the turkish legion against the tyrany of greeke menace\n");
             printf("https://t.me/turkiye_forever\n");
         }
+        else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"-redo")==0)
+        {
+            //to be imlemented
+            if (is_there_a_shiz_dir==-1)
+            {
+                printf(".shiz file does not exist\n");
+            }
+            else{
+            redo_stage(stage_dir,shiz_dir);
+            }
+        }
+        
         else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"all")!=0)
         {
             if (is_there_a_shiz_dir==-1)
@@ -294,17 +310,7 @@ int main(int argc,char *argv[]){
             send_to_storage(strlen(shiz_dir),strlen(current_dir),current_dir,stage_dir,current_dir);
             }
         }
-        else if (strcmp(argv[1],"add")==0&&strcmp(argv[2],"-redo")==0)
-        {
-            //to be imlemented
-            if (is_there_a_shiz_dir==-1)
-            {
-                printf(".shiz file does not exist\n");
-            }
-            else{
-            redo_stage(stage_dir,shiz_dir);
-            }
-        }
+        
         else if (strcmp(argv[1],"rest")==0)
         {
             if (is_there_a_shiz_dir==-1)
@@ -346,7 +352,17 @@ int main(int argc,char *argv[]){
                 printf(".shiz file does not exist\n");
             }
             else{
-            check_out(argv[2],storage_dir,shiz_dir);
+                int yy=number_files(stage_dir);
+                if (yy!=0)
+                {
+                   printf("you cant checkout without commiting changes\n");
+                }
+                else{
+                    check_out(argv[2],storage_dir,shiz_dir);
+                }
+                
+                
+            
             }
         }
         else if (strcmp(argv[1],"checkout")==0&&strcmp(argv[2],"HEAD")==0)
@@ -507,7 +523,8 @@ int main(int argc,char *argv[]){
                 printf(".shiz file does not exist\n");
             }
             else{
-            logs(decipher(strlen(argv[3]),argv[3]),storage_dir);
+                
+            logs(decipher(strlen(argv[3])+1,argv[3]),storage_dir);
             }
         }
         else if (strcmp(argv[1],"log")==0&&strcmp(argv[2],"-branch")==0)
@@ -596,7 +613,7 @@ int main(int argc,char *argv[]){
             char* all_tags[20];
             for (int i = 0; i < 20; i++)
             {
-                all_tags[20]=(char*) calloc(256,1);
+                all_tags[i]=(char*) calloc(256,1);
             }
             listFilesRecursively(qwwqq,alsw);
             turn_str_to_list(alsw,all_tags);
@@ -614,6 +631,7 @@ int main(int argc,char *argv[]){
                 {
                     FILE* fofoisbad=fopen(all_tags[i],"r");
                     char* name=(char*) calloc(256,1);
+                    fscanf(fofoisbad,"%s",name);
                     if (strcmp(name,argv[3])==0)
                     {
                         char* text=(char*) calloc(300,1);
